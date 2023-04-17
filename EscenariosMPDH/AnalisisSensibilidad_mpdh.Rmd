@@ -23,15 +23,6 @@ header-includes:
 - \newcommand{\sietepuntos}{\fontsize{7pt}{\baselineskip}\selectfont}
 - \newcommand{\cincopuntos}{\fontsize{6pt}{\baselineskip}\selectfont}
 
-- \addtolength{\headheight}{4.5\baselineskip}
-- \setlength{\headheight}{70pt}
-- \setlength{\footskip}{5pt}
-- \setlength{\textheight}{658pt}
-- \fancyhead[CO,CE]{\includegraphics[height=1.5cm]{Figuras/logoifop.png}\\ \sietepuntos INSTITUTO DE FOMENTO PESQUERO / DIVISION INVESTIGACION PESQUERA}
-- \fancyhead[LO,LE]{ }
-- \fancyhead[RO,RE]{ }
-- \renewcommand{\headrulewidth}{0.5pt}
-- \fancyfoot[C]{\cincopuntos \thepage \\ \vspace{-0.2cm} ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ \\ \vspace{-0.2cm} \cincopuntos CONVENIO DE DESEMPEÑO 2020 IFOP/SUBSECRETARÍA DE ECONOMíA Y EMT \\ \vspace{-0.1cm} SEGUNDO INFORME. SARDINA COMÚN DE LA  REGIÓN DE VALPARAÍSO A LA REGIÓN DE LOS LAGOS, 2021. \textbf{ANEXO I}.}
 ---
 
 \pagebreak
@@ -1152,10 +1143,6 @@ f3<- ggplot(data2 %>% filter(Series=="Crucero_huevos"),
 \pagebreak
 # RESIDUALES ÍNDICES
 
-
-
-
-
 ```{r Fig20,warning=F, include=T, message=F, echo=F,eval=F,fig.height=6,fig.width=5,fig.align="center"}
 
 #######################################################################################
@@ -1561,8 +1548,6 @@ f4_a<- ggplot(data1 %>% filter(Series=="Mortalidad_por_pesca")) +
 (f1_a/f2_a) | (f3_a/f4_a)
 
 ```
-
-
 
 
 ### Variables poblacionales, Actualización de biomasa desovante de crucero de huevos y cambios en coeficientes de variación
@@ -2245,7 +2230,7 @@ Verosimilitud(paste("MAE0921s",i,sep=""),
 ```
 
 
-```{r Vesorimilitud_sensibilidad,eval=T, warning=F, include=T, message=F,eval=T, echo=F,fig.height=3,fig.width=4,fig.align="center",fig.path=dir.Fig,dev=fig}
+```{r Vesorimilitud_sensibilidad,eval=F, warning=F, include=T, message=F, echo=F,fig.height=3,fig.width=4,fig.align="center",fig.path=dir.Fig,dev=fig}
 
 escenarios<-c("S1_base",
               "S2_CV_Mph0,30",
