@@ -1,0 +1,85 @@
+---
+title: "Modelo trimestral anchoveta centro-sur"
+author: " "
+date: '`r format(Sys.Date(),"%B, %d, %Y")`'
+output: 
+  pdf_document:
+      toc: TRUE
+      toc_depth: '3'
+      number_sections: yes
+urlcolor: blue   
+---
+
+
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(echo=F, warning=FALSE, message=FALSE,collapse=TRUE,fig.align="center",fig.pos="h!")
+```
+
+```{r results='hide'}
+## Librerías requeridas
+ paquetes <- c("stringr", "tidyverse", "kableExtra","ggplot2","ggthemes",
+               "patchwork","dplyr","reshape","here","pdftools")
+ lapply(paquetes, require, character.only = TRUE)
+ 
+ 
+```
+
+
+```{r}
+dir.0   <- here() 
+dir.1   <- here(dir.0,"codigos_admb") 
+
+source(here("funciones","functions.R")) 
+
+```
+
+
+
+# Modelo compila y ejecuta sin problema
+
+```{r eval=FALSE, include=F}
+setwd(dir.1)
+#para mac
+system("~/admb-12.2/admb modtrim")
+system("./modtrim")
+#para windows
+#system("admb MAE323")
+#system("MAE323")
+
+
+```
+
+
+```{r }
+  rep         <- reptoRlist(here(dir.0,"codigos_admb","modtrim.rep"))
+names(rep)
+  std         <- read.table(here(dir.0,"codigos_admb","modtrim.std"),header=T,sep="",na="NA",fill=T) 
+```
+
+
+# Datos observados
+
+```{r}
+year<-as.numeric(substr(rep[[1]],1,4))
+trim<-as.numeric(substr(rep[[1]],6,6))
+
+cpue_obs<-as.numeric(rep[[2]][1,]);cpue_obs[cpue_obs==0]<-NA
+reclas_obs<-as.numeric(rep[[3]][1,]);reclas_obs[reclas_obs==0]<-NA
+pelaces_obs<-as.numeric(rep[[4]][1,]);pelaces_obs[pelaces_obs==0]<-NA
+desem_obs<-as.numeric(rep[[5]][1,]);desem_obs[desem_obs==0]<-NA
+
+library("zoo")
+data_index<-data.frame(year,trim,cpue_obs,reclas_obs,pelaces_obs,desem_obs) %>% 
+            mutate(ytr=as.yearqtr(paste(year," Q",trim,sep=""))) %>% 
+            melt(id.vars=c("year","trim","ytr"))
+
+ ggplot(data_index,aes(x=ytr, y=value)) +
+  geom_line()+
+   geom_point()+
+   facet_wrap(~variable,scale="free",dir = 'v', as.table = TRUE) + 
+   labs(x="Años/Trimestres", y="Índices") +  
+   theme_bw() + 
+scale_x_yearqtr(format = "%Y-T%q")
+ 
+```
+
