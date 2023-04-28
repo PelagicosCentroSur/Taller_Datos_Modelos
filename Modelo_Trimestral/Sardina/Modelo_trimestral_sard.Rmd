@@ -1,0 +1,398 @@
+---
+title: "Descripción de Datos de entrada y supuestos de un modelo estadístico estructurado por tallas en escala trimestral implementado en ADMB"
+author: "María José ..."
+date: '`r format(Sys.Date(),"%B, %d, %Y")`'
+output: 
+  pdf_document:
+      toc: TRUE
+      toc_depth: '3'
+      number_sections: yes
+urlcolor: blue   
+---
+
+\newpage
+
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(echo=F, warning=FALSE, message=FALSE,collapse=TRUE,fig.align="center",fig.pos="h!")
+```
+
+```{r results='hide'}
+## Librerías requeridas
+ paquetes <- c("stringr", "tidyverse", "kableExtra","ggplot2","ggthemes",
+               "patchwork","dplyr","reshape","here","pdftools")
+ lapply(paquetes, require, character.only = TRUE)
+ 
+ 
+```
+
+# directorio de trabajo
+```{r}
+dir.0   <- here() 
+dir.1   <- here(dir.0,"codigos_admb") 
+
+source(here("funciones","functions.R")) 
+
+```
+
+
+
+# Ejecución del modelo trimestral implementado en admb 
+
+Revisar modelo, arroja error en la hessiana!
+
+```{r eval=FALSE, include=F}
+setwd(dir.1)
+#para mac
+system("~/admb-12.2/admb modtrim")
+system("./modtrim")
+#para windows
+#system("admb MAE323")
+#system("MAE323")
+
+
+```
+
+# Contexto
+
+El objetivo del taller de datos y modelos de mayo 2023 es realizar una revisión y descripción de los datos de entrada  y principales supuestos del modelo estadístico con dinámica en tallas y escala trimestral implementado en ADMB propuesto en proyecto FIPA 2018-49.
+
+
+
+# Revisión general de los datos de entrada y ponderadores
+
+El período de la serie histórica va desde 1994 hasta 2018 (se actualizará más adelante)
+Se consideran 12 años para conseguir el equilibrio (averiguar porque y donde entran esos años (inicio o final?)
+
+
+## Datos biológicos
+
+- Ojiva de madurez sexual a la talla (averiguar de donde se obtienen los parámetros de la ojiva)
+- talla media de madurez (11.5 para sardina común confirmar!!)
+- Vector de pesos medios constante para todos los años (averiguar de donde se obtienen los parámetros de la relación longitud-peso)
+- Mortalidad natural igual a 0.37 (trimestral, averiguar de donde se obtienen los parámetros de la relación logitud-peso) 
+- Parámetros de crecimiento:
+
+   - Loo = 18.1 (cm), (fijo)
+   - k=0.185 (trimestral???), (fijo) 
+   - Lr=7.0 (prior, es estimado por el modelo) (longitud de reclutas)
+   - sr=1.5 (se usa para la matriz talla-talla, no recuerdo si tiene que ver con la amplitud, averiguar)
+   - b=0.5 (también se usa en matriz talla-talla, un ponderador, no recuerdo para qué, averiguar)
+         
+- Relación stock-recluta, se asume steepness h=1 (no hay relación stock-recluta, sólo una media con desvíos)
+
+## Índices de abundancia
+
+- biomasa del crucero de verano (reclas) en toneladas se asignan al trimestre 1 desde 2000 al 2018.
+- biomasa del crucero de otoño (pelaces) en toneladas se asignan al trimestre 2 desde el 2003 al 2018.
+- biomasa desovante método de producción de huevos (mph) en toneladas se asigna al trimestre 4 (revisar, porque hay un solo registro de ese dato el 2010)
+- está la opción de incluir un índice de cpue pero no hay información de este índice en el código de sardina, quizás se deba eliminar o subir CV).
+- desembarques en toneladas asignados a cada trimestre desde 1994 al 2018. Revisar un desembarque que se escapa el 2010, está raro. Averiguar de donde vienen los desembarques, si son oficiales de sernapesca o vienen de los datos de estructuras de tallas ponderadas a las capturas de IFOP.
+
+## Estructuras de tallas 
+
+- Las estructuras de tallas de reclas se asignan al trimestre 1 desde el 2000 al 2018.
+- Las estructuras de tallas de pelaces se asignan al trimestre 2 desde el 2003 al 2018.
+- Las estructuras de tallas de la flota se asignan a cada trimestre desde el 2001 al 2018.
+
+
+Nota: Durante el primer y segundo trimestre se encuentran peces bajo la talla media de madurez. (alta presencia de juveniles)
+La actividad pesquera se concentra entre los dos primeros trimestres, vulnerando principalmente los individuos bajo talla media de madurez.
+Durante el tercer trimestre se registran los niveles más bajos de desembarques producto principalmente de la veda reproductiva establecida entre los meses de julio a octubre principalmente.
+
+## Ponderadores de la información:
+
+### Coeficientes de variación (CV)
+
+Todos los CVs se asumen constantes para todos los años de la serie
+
+- CV reclas = 0.2
+- CV pelaces = 0.2
+- CV mpdh = 0.3
+- CV desembarques = 0.05
+
+### Tamaños de muestra (nm)
+
+Todos los nm se asumen constantes para todos los años de la serie
+
+- nm reclas = 15
+- nm pelaces = 15
+- nm flota = 30
+
+## Selectividad
+
+-  Selectividad logística para la flota y constante para todos los años
+-  Selectividad para el crucero de verano es igual a 1, es decir, no hay escape, el arte de pesca no es selectivo.
+-  Selectividad para el crucero de otoño es casi casi filo de cuchillo. 
+
+## Capturabilidad
+
+log_q_pel:
+> exp(-0.301147458898)
+[1] 0.7399686
+
+log_q_recl:
+> exp(0.0246927766013)
+[1] 1.025
+
+
+## Crecimiento
+
+
+## Reclutamiento
+
+
+
+
+\newpage
+
+# FIGURAS 
+```{r }
+  B <- readLines(here(dir.0,"codigos_admb","modtrim.dat"),encoding="UTF-8")
+  C <- readLines(here(dir.0,"codigos_admb","modtrim.rep"),encoding="UTF-8") 
+  
+yrs     <-as.numeric(B[2])
+ntrim      <-as.numeric(B[4])
+nyear_equi <-as.numeric(B[6])
+ntallas    <-as.numeric(B[8])
+tallas     <-as.numeric(strsplit(B[114],"\t")[[1]])
+madurez    <-as.numeric(strsplit(B[428],"\t")[[1]])
+pesos_med  <-as.numeric(strsplit(B[430],"\t")[[1]])
+#-------------------------------------------------------------------------------
+names_ind<-strsplit(B[9],"\t")
+names_ind[[1]][1]<-"year"
+rowind<-10:109 #filas de indices de abundancia
+ncol_ind<-15
+yrs<-length(rowind)
+ind<-matrix(nrow=yrs,ncol=ncol_ind)
+for(i in 1:yrs){ind[i,]<-as.numeric(strsplit(B[rowind[i]],"\t")[[1]])}
+colnames(ind)<-names_ind[[1]]
+#-------------------------------------------------------------------------------
+#Composiciones de edad de la flota 
+rowpfo<-118:217 #filas de proporcion de la flota observados
+pf_obs<-matrix(nrow=yrs,ncol=ntallas)
+for(i in 1:length(rowpfo)){pf_obs[i,]<-as.numeric(strsplit(B[rowpfo[i]],"\t")[[1]])}
+colnames(pf_obs)<-tallas
+
+#Composiciones de edad de reclas
+rowpR<-221:320 #filas de proporcion de reclas observados
+pR_obs<-matrix(nrow=yrs,ncol=ntallas)
+for(i in 1:length(rowpR)){pR_obs[i,]<-as.numeric(strsplit(B[rowpR[i]],"\t")[[1]])}
+colnames(pR_obs)<-tallas
+#Composiciones de edad de pelaces
+rowpP<-325:424 #filas de proporcion de pelaces observados
+pP_obs<-matrix(nrow=yrs,ncol=ntallas)
+for(i in 1:length(rowpP)){pP_obs[i,]<-as.numeric(strsplit(B[rowpP[i]],"\t")[[1]])}
+colnames(pP_obs)<-tallas
+
+```
+
+### Datos biológicos
+
+```{r}
+ojivamadurez<-data.frame(tallas,
+                         prop=madurez)
+
+x1<-ggplot(ojivamadurez,aes(tallas,prop))+
+  geom_line()+
+  geom_point()+ 
+  labs(x="Tallas (cm)", y="Proporción") +  
+     ggtitle('Ojiva de madurez a la talla')+
+    theme(panel.background = element_rect(fill ="gray95")) +
+  theme_bw(base_size=10) 
+  
+pesosmedios<-data.frame(tallas,
+                         prop=pesos_med)
+
+x2<-ggplot(pesosmedios,aes(tallas,prop))+
+  geom_line()+
+  geom_point()+ 
+  labs(x="Tallas (cm)", y="Pesos medios (grs)") +  
+     ggtitle('Pesos medios a la talla')+
+    theme(panel.background = element_rect(fill ="gray95")) +
+  theme_bw(base_size=10) 
+  
+x1+x2
+```
+
+
+
+###  Indices de abundancia
+
+```{r fig.height=8,fig.width=6,echo=FALSE}
+
+rep         <- reptoRlist(here(dir.0,"codigos_admb","modtrim.rep"))
+std         <- read.table(here(dir.0,"codigos_admb","modtrim.std"),header=T,sep="",na="NA",fill=T) 
+  
+
+year<-as.numeric(substr(ind[,1],1,4))
+trim<-as.numeric(substr(ind[,1],6,6))
+
+dataInd<-as.data.frame(ind) 
+cpue_obs<-dataInd$CPUE %>% na_if(0)
+reclas_obs<-dataInd$RECLAS %>% na_if(0)
+pelaces_obs<-dataInd$PELACES %>% na_if(0)
+mph_obs<-dataInd$MPH %>% na_if(0)
+desem_obs<-dataInd$Desemb %>% na_if(0)
+
+
+library("zoo")
+data_index<-data.frame(year,trim,cpue_obs,reclas_obs,pelaces_obs,mph_obs,desem_obs) %>%
+            mutate(ytr=as.yearqtr(paste(year," Q",trim,sep=""))) %>% 
+            melt(id.vars=c("year","trim","ytr"))
+
+ ggplot(data_index) +
+    geom_bar(aes(x = ytr, y = value), 
+             stat="identity", fill='gray66', color = 'gray28') + 
+   facet_wrap(~variable,dir = 'v', as.table = TRUE,ncol=1,scales = "free_y") + 
+   labs(x="Años/Trimestres", y="Índices") +  
+   theme_bw() + 
+scale_x_yearqtr(format = "%Y-T%q")+
+    theme(plot.title = element_text(size = 8))
+ 
+```
+
+###  desembarques trimestrales
+
+```{r fig.height=4,fig.width=6,echo=FALSE}
+ ggplot(data_index %>% filter(variable=="desem_obs")) +
+    geom_boxplot(aes(x = as.factor(trim), y = value),notch = TRUE) +  
+    #facet_grid(rows=vars(year),  as.table = TRUE,scales = "free") + 
+   labs(x="Trimestres", y="Desembarques (t)") +  
+   theme_bw() + 
+    theme(plot.title = element_text(size = 12))
+
+```
+
+
+###  Tallas medias trimestrales de la flota
+
+```{r fig.height=4,fig.width=6,echo=FALSE}
+
+year_dat<-as.numeric(substr(ind[,1],1,4))
+trim_dat<-as.numeric(substr(ind[,1],6,6))
+
+data_flo<-as.data.frame(pf_obs) %>% mutate(year=year_dat,trim=trim_dat)%>% mutate(ytr=as.yearqtr(paste(year," Q",trim,sep=""))) %>% melt(id.vars=c("year","trim","ytr"))
+
+
+tallamediaF<-as.numeric(strsplit(C[16]," ")[[1]])[2:101]
+tallamediaR<-as.numeric(strsplit(C[19]," ")[[1]])[2:101]
+tallamediaP<-as.numeric(strsplit(C[22]," ")[[1]])[2:101]
+
+Tflota<-as.data.frame(tallamediaF)%>% 
+   mutate(year=year_dat,trim=trim_dat)%>% 
+   mutate(ytr=as.yearqtr(paste(year," Q",trim,sep="")))
+
+
+ggplot(Tflota[Tflota$tallamediaF != 0, ])+
+    geom_boxplot(aes(x = as.factor(trim), y = tallamediaF),notch = TRUE)+  
+    labs(x = 'Trimestres', y = 'Talla media (cm)') +
+     ggtitle('FLOTA')+
+   theme_bw() + 
+    theme(plot.title = element_text(size = 8))
+
+
+```
+
+###  Estructuras de tallas trimestrales de la flota 
+
+```{r fig.height=10,fig.width=10,echo=FALSE}
+
+ggplot(data_flo) + 
+    geom_bar(aes(x = variable, y = value), stat="identity", fill='gray66', color = 'gray28') + 
+    facet_grid(year~trim,  as.table = TRUE,scales = "free") + 
+    labs(x = 'Tallas', y = 'Proporción') +
+    theme(panel.background = element_rect(fill ="gray99")) + 
+    theme(panel.grid=element_line(color=NA)) + 
+     ggtitle('FLOTA')+
+    theme(plot.title = element_text(size = 6))
+
+```
+
+###  Estructuras de tallas cruceros acústicos de verano
+
+```{r fig.height=10,fig.width=10,echo=FALSE}
+year_dat<-as.numeric(substr(ind[,1],1,4))
+trim_dat<-as.numeric(substr(ind[,1],6,6))
+
+data_Reclas<-as.data.frame(pR_obs) %>% mutate(year=year_dat,trim=trim_dat)%>% melt(id.vars=c("year","trim"))
+
+ggplot(data_Reclas) + 
+    geom_bar(aes(x = variable, y = value), stat="identity", fill='gray66', color = 'gray28') + 
+    facet_grid(year~trim,  as.table = TRUE,scales = "free") + 
+    labs(x = 'Tallas', y = 'Proporción') +
+    theme(panel.background = element_rect(fill ="gray99")) + 
+    theme(panel.grid=element_line(color=NA)) + 
+     ggtitle('CRUCERO DE VERANO')+
+    theme(plot.title = element_text(size = 8))
+
+```
+
+###  Estructuras de tallas cruceros acústicos de otoño
+
+```{r fig.height=10,fig.width=10,echo=FALSE}
+year_dat<-as.numeric(substr(ind[,1],1,4))
+trim_dat<-as.numeric(substr(ind[,1],6,6))
+
+data_Pela<-as.data.frame(pP_obs) %>% mutate(year=year_dat,trim=trim_dat)%>% melt(id.vars=c("year","trim"))
+
+ggplot(data_Pela) + 
+    geom_bar(aes(x = variable, y = value), stat="identity", fill='gray66', color = 'gray28') + 
+    facet_grid(year~trim,  as.table = TRUE,scales = "free") + 
+    labs(x = 'Tallas', y = 'Proporción') +
+    theme(panel.background = element_rect(fill ="gray99")) + 
+    theme(panel.grid=element_line(color=NA)) + 
+     ggtitle('CRUCERO OTOÑO')+
+    theme(plot.title = element_text(size = 8))
+
+```
+
+###  Selectividades a la talla
+
+
+```{r fig.height=8,fig.width=4,echo=FALSE}
+#Composiciones de edad de pelaces
+rowselF<-152:251 #filas de proporcion de pelaces observados
+selF<-matrix(nrow=yrs,ncol=ntallas+1)
+
+for(i in 1:length(yrs)){
+   selF[i,]<-as.numeric(strsplit(C[rowselF[i]]," ")[[1]])
+}
+
+selF<-selF[,2:34]
+colnames(selF)<-tallas
+
+data_selF<-as.data.frame(selF) %>% mutate(year=year_dat,trim=trim_dat)%>% melt(id.vars=c("year","trim"))
+
+
+selR<-as.numeric(strsplit(C[253]," ")[[1]])
+selR<-data.frame(tallas,sel=selR[2:34])
+
+selP<-as.numeric(strsplit(C[255]," ")[[1]])
+selP<-data.frame(tallas,sel=selP[2:34])
+
+x1<-ggplot(data_selF) + 
+   geom_point(aes(x=variable,y=value,colour=year))+ 
+    labs(x = 'Tallas', y = 'Selectividad') +
+     ggtitle('FLOTA')+ 
+   theme_bw() + 
+    theme(plot.title = element_text(size = 8))
+
+x2<-ggplot(selR) + 
+   geom_point(aes(x=tallas,y=sel))+ 
+    labs(x = 'Tallas', y = 'Selectividad') +
+     ggtitle('CRUCERO VERANO')+ 
+   theme_bw() + 
+    theme(plot.title = element_text(size = 8))
+
+x3<-ggplot(selP) + 
+   geom_point(aes(x=tallas,y=sel))+ 
+    labs(x = 'Tallas', y = 'Selectividad') +
+     ggtitle('CRUCERO OTOÑO')+ 
+   theme_bw() + 
+    theme(plot.title = element_text(size = 8))
+
+
+x1 / x2 /x3
+
+```
+
