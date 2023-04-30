@@ -141,7 +141,7 @@ log_q_recl:
 ## Reclutamiento
 
 
-
+Se asume que el desove ocurre a mitad de cada trimestre
 
 \newpage
 
