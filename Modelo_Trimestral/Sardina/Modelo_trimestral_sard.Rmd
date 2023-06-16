@@ -28,9 +28,9 @@ knitr::opts_chunk$set(echo=F, warning=FALSE, message=FALSE,collapse=TRUE,fig.ali
 # directorio de trabajo
 ```{r}
 dir.0   <- here() 
-dir.1   <- here(dir.0,"codigos_admb") 
+dir.1   <- here(dir.0,"codigos_admbN") 
 
-source(here("funciones","functions.R")) 
+#source(here("funciones","functions.R")) 
 
 ```
 
@@ -43,8 +43,8 @@ Revisar modelo, arroja error en la hessiana!
 ```{r eval=FALSE, include=F}
 setwd(dir.1)
 #para mac
-system("~/admb-12.2/admb modtrim")
-system("./modtrim")
+system("~/admb-12.2/admb modtrim3")
+system("./modtrim3")
 #para windows
 #system("admb MAE323")
 #system("MAE323")
