@@ -143,8 +143,8 @@ writeData <-function (name, L, append = FALSE)
 		
 		#if (tools::file_ext(name) == ".dat") {
 		name
-#	}
-#	else paste(name, "dat", sep = ".")
+	#	}
+	#	else paste(name, "dat", sep = ".")
 	#cat("# \"", file_name, "\" produced by dat_write() from R2admb ", 
 	#	date(), "\n", file = file_name, sep = "", append = append)
 	for (i in 1:length(L)) {
@@ -169,7 +169,6 @@ writeData <-function (name, L, append = FALSE)
 		}
 	}
 }
-
 
 
 reptoRlist <- function(fn){

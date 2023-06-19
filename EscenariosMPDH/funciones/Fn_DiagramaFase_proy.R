@@ -63,14 +63,14 @@ DiagramaFase_proy<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,Ftarg,BRMS,BLIM,FL
 #	png(paste(Salida3,"/DF_",name,".png",sep=""),width=450,height=400)        
 	#x11(width=450,height=400)
 	usefont <- 2
-	par(mfrow = c(1,1))
+#	par(mfrow = c(1,1))
 	ifelse((nchar(name) > 1),upspace <- 1.5,upspace <- 0)
-	par(mai=c(0.4,0.4,0.05,0.05),oma=c(0.0,0,upspace,0.0))
+	#par(mai=c(0.4,0.4,0.05,0.05),oma=c(0.0,0,upspace,0.0))
 	par(cex=0.7, mgp=c(1.35,0.35,0), font.axis=usefont,font=usefont)
 	
 	if(etiqueta){
 	plot(3,3,type="n",pch=16,cex=0.8,lwd=1,xlim=c(0,3),xaxs="i",
-		ylim=c(yupdown),yaxs="i",xlab="",ylab="")
+		ylim=c(yupdown),yaxs="i",xlab="",ylab="",main=name)
 	}
 	else{
 	plot(Bval,Fval,type="n",pch=16,cex=0.8,lwd=1,xlim=c(0,2),xaxs="i",
@@ -110,8 +110,8 @@ DiagramaFase_proy<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,Ftarg,BRMS,BLIM,FL
 	else{
 	lines(Bval,Fval,lwd=1)
 	points(Bval,Fval,pch=16,cex=0.8)
-	arrows(x0=B95[1],y0=lastF,x1=B95[2],y1=lastF,length=0.05,angle=90,col="orange",lwd=1,code=3)
-	arrows(x0=lastB,y0=F95[1],x1=lastB,y1=F95[2],length=0.05,angle=90,col="orange",lwd=1,code=3)
+	# arrows(x0=B95[1],y0=lastF,x1=B95[2],y1=lastF,length=0.05,angle=90,col="orange",lwd=1,code=3)
+	# arrows(x0=lastB,y0=F95[1],x1=lastB,y1=F95[2],length=0.05,angle=90,col="orange",lwd=1,code=3)
 
 	points(c(tail(Bval,1),tail(Bval[1])),c(tail(Fval,1),tail(Fval[1])),pch=16,cex=1,col=c("orange","green"))
 	#text(c(Bval[1],Bval[maxaxes],Bval[maxaxes-1]),c(Fval[1]-0.05,Fval[maxaxes]-0.05,Fval[maxaxes-1]+0.05),c(Year[1],Year[length(Year)],Year[length(Year)-1]),cex=1.2)

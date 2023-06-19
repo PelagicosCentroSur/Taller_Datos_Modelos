@@ -1,5 +1,5 @@
-# SPRFmort es una función que estima las curvas de YPR y SPR
-# SPRFpbr es una función que estima el Fx% del 60%SPR, 55%SPR, 45%SRP, 30%SRP
+# SPRFmort es una funci?n que estima las curvas de YPR y SPR
+# SPRFpbr es una funci?n que estima el Fx% del 60%SPR, 55%SPR, 45%SRP, 30%SRP
 
 #============================================================================
 # EQUILIBRIUM SSB PER RECRUIT  "%SPR(F)"
@@ -62,7 +62,7 @@ SPR1<-function(R0,Fmort,Amax,Dat)
 }
 
 ####################################################################################
-#    ESTIMACIÓN DE Fpbr
+#    ESTIMACI?N DE Fpbr
 ####################################################################################
 SPRFpbr <- function(Fpbr)
 {
@@ -168,134 +168,9 @@ SPRFpbr <- function(Fpbr)
 	  sprpen <- sprpen+(SBF425/SBF0-0.425)^2
 	 }
 
-#============================================================================
-# Cálculo de alfa y beta de la relación Stock-recluta
-#============================================================================
-SRalbe	<- function(SPRo,h,R0)
-{
-	nh	 		<- length(h)
-	alphaBH		<- rep(0,nh)
-	betaBH	 	<- rep(0,nh)
-	alphaRK		<- rep(0,nh)
-	betaRK	 	<- rep(0,nh)
-
-	for(i in 1:nh)
-	{
-		
-		alphaBH[i] 	<- (4*h[i])/(5*h[i]-1)*R0
-		betaBH[i]  	<- (1-h[i])/(5*h[i]-1)*SPRo
-	
-		alphaRK[i] 	<- exp( log(5*h[i])/0.8 )/SPRo
-		betaRK[i]  	<- log(5.0*h[i])/(0.8*SPRo*R0)
-	}	
-		RetVals <- NULL
-		RetVals$AlphaBH <- alphaBH
-		RetVals$BetaBH  <- betaBH
-		RetVals$AlphaRK <- alphaRK
-		RetVals$BetaRK  <- betaRK
-		return(RetVals)
-}
-
-#============================================================================
-# Cálculo para estimar Reclutamiento en equilibrio S-R
-#============================================================================
-Req	<- function(spr,SPRo,SRmodel,Alpha,Beta,h)
-{
-	nspr 	 	<- length(Fmort)
-	nh		<- length(h)
-	Reqout	<- matrix(0,nspr,nh)
-	SSBeqout<-matrix(0,nspr,nh)
-	for(j in 1:nh)
-	{
-		for(i in 1:nspr)
-		{
-			if(SRmodel == 1)
-			{
-			Reqout[i,j] <- (Alpha[j]*spr[i])/(Beta[j]+spr[i])
-			SSBeqout[i,j]<-Alpha[j]*spr[i]-Beta[j]
-			}
-			if(SRmodel == 2)
-			{
-			Reqout[i,j]   <- spr[i]*Alpha[j]*exp(-Beta[j]*spr[i])
-			}
-		}
-	}
-  req <- NULL
-  req$re<-Reqout
-	req$pre<-Reqout/Reqout[1,]
- 	req$sb<-SSBeqout
-	req$psb<-SSBeqout/SSBeqout[1,]
-  return(req)
-}
 
 
 
 
-################################################################################
-################################################################################
-################################################################################
-#  Metodo 4. formulas de Carmen
-################################################################################
 
-#============================================================================
-#  Calculando el %R(F)
-#============================================================================
-
-pR_m4	<-function(Pspr,h)
-{
-	nh	 	<- length(h)
-	nspr 	 	<- length(Fmort)
-	pReq		<- matrix(0,nspr,nh)
-
-	for(j in 1:nh)
-	{
-		for(i in 1:nspr)
-		{
-		pReq[i,j]	<- (4*h[j]-((1-h[j])/Pspr[i]))/(5*h[j])
-		}
-	}
-	return(pReq)
-}
-
-
-
-#============================================================================
-#  Calculando el %SSB(F)  METODO 4
-#============================================================================
-pSSB_m4	<-function(Pspr,h)
-{
-	nh	 	<- length(h)
-	nspr 	 	<- length(Fmort)
-	pSSBeq	<- matrix(0,nspr,nh)
-
-	for(j in 1:nh)
-	{
-		for(i in 1:nspr)
-		{
-		pSSBeq[i,j]	<- 1+((4*h[j])/(5*h[j]-1))*(Pspr[i]-1)
-		}
-
-	}
-	return(pSSBeq)
-}
-
-#============================================================================
-#  Calculando el %SPR(F)
-#============================================================================
-pSPR_m4	<-function(pSSBeq,h)
-{
-	nh	 	<- length(h)
-	nspr 	 	<- length(Fmort)
-	pSPRf		<- matrix(0,nspr,nh)
-
-	for(j in 1:nh)
-	{
-		for(i in 1:nspr)
-		{
-		pSPRf[i,j]	<- 1-((5*h[j]-1)/(4*h[j]))*(1-pSSBeq[i])
-		}
-
-	}
-	return(pSPRf)
-}
 

@@ -1,8 +1,7 @@
 #********************************************************
 # DIAGRAMA DE FASE  EQUILIBRIO 
 #********************************************************
-DiagramaFase2<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,BD2019,sdbd2019,F2019,sdf2019,
-                        Ftarg,BRMS,BLIM,FLIM,color,Salida3,etiqueta,preliminar,completo){
+DiagramaFase2<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,BD2019,sdbd2019,F2019,sdf2019,Ftarg,BRMS,BLIM,FLIM,color,Salida3,etiqueta,preliminar,completo){
 
 	fLim     <- FLIM/tail(Ftarg,1)
 	Fval     <- exp(ln_Fyr)/Ftarg
@@ -66,7 +65,7 @@ DiagramaFase2<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,BD2019,sdbd2019,F2019,
 	usefont <- 2
 	#par(mfrow = c(1,1))
 	ifelse((nchar(name) > 1),upspace <- 1.5,upspace <- 0)
-	par(mai=c(0.45,0.45,0.05,0.05),oma=c(0.0,0,upspace,0.0))
+	#par(mai=c(0.45,0.45,0.05,0.05),oma=c(0.0,0,upspace,0.0))
 	par(cex=0.85, mgp=c(1.35,0.35,0), font.axis=usefont,font=usefont)
 	
 	if(etiqueta){
@@ -82,8 +81,8 @@ DiagramaFase2<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,BD2019,sdbd2019,F2019,
 	polygon(yellowx,yellowy,col=col2)
 	polygon(greenx,greeny,col=col1)
 	polygon(fullyEx,fullyEy,col="white")  
-	#polygon(orangex,orangey,col=col5)
-	polygon(orangex2,orangey,col=col5)
+	polygon(orangex,orangey,col=col5)
+	polygon(orangex2,orangey2,col=col5)
 	#----------------------------------
 	abline(v=BTargC,lty=1,col="white")  
 	abline(v=BTargC,lty=2,col=1)
@@ -92,21 +91,21 @@ DiagramaFase2<-function(name,Year,SpB,SpBSE,ln_Fyr,ln_FSE,BD2019,sdbd2019,F2019,
 	abline(v=BlimC,lty=1,col="white")  
 	abline(v=BlimC,lty=2,col=1)
 	#----------------------------------
-	title(xlab=list(expression("BD/BD"['RMS']), cex=1.2, font=usefont),
-		ylab=list(expression("F/F"['RMS']), cex=1.2, font=usefont))
+	title(xlab=list("BD/BDrms", cex=1.2, font=usefont),
+		ylab=list("F/Frms", cex=1.2, font=usefont))
 	if (upspace > 0) mtext(name,side=3,outer=T,cex=1,font=usefont)
 	
 	if(etiqueta){
-	text(c(2.1,2.8),c(0.2,1.05),c("Sub Explotación",expression("F = F"['RMS'])),cex=c(1.2,1))
-	text(BTargC+0.9,FTarg-0.25,"Plena Explotación",cex=1.2)
-	text(BTargC+0.9,FTarg+1.1,"Sobrepesca",cex=1.2)
-	mtext(side=2,line=-3.5,"Agotamiento y/o Colapso",cex=1,adj = 0.15)
-  mtext(side=2.9,line=-8,"Sobre-explotación y ",cex=1,adj = 0.8)
-	mtext(side=2.9,line=-9,"Sobrepesca ",cex=1,adj = 0.75)
-	mtext(side=2.9,line=-8,"Sobre- ",cex=1,adj = 0.05)
-	mtext(side=2.9,line=-9,"Explotación ",cex=1,adj = 0.05)
-	mtext(side=2.6,line=-5.25,expression("BD = BD"["límite"]),cex=0.8,adj = 1)
-	mtext(side=2.6,line=-10.95, expression("BD = BD"['RMS']),cex=0.8,adj = 1)
+	text(c(2.1,2.8),c(0.2,1.05),c("Sub Explotaci?n","F = Frms"),cex=c(1.4,1))
+	text(BTargC+0.9,FTarg-0.25,"Plena Explotaci?n",cex=1.4)
+	text(BTargC+0.9,FTarg+1.1,"Sobrepesca",cex=1.4)
+	mtext(side=2,line=-3.5,"Agotamiento y/o Colapso",cex=1.2,adj = 0.15)
+  mtext(side=2.9,line=-8,"Sobre-explotaci?n y ",cex=1.2,adj = 0.8)
+	mtext(side=2.9,line=-9,"Sobrepesca ",cex=1.2,adj = 0.75)
+	mtext(side=2.9,line=-8,"Sobre- ",cex=1.2,adj = 0.05)
+	mtext(side=2.9,line=-9,"Explotaci?n ",cex=1.2,adj = 0.05)
+	mtext(side=2,line=-5.7,"BD = BDlimite ",cex=0.8,adj = 1)
+	mtext(side=2,line=-11.5,"BD = BDrms ",cex=0.8,adj = 1)
 	}
 	else{
 	  #incorporando el a?o 2019

@@ -43,13 +43,13 @@ ProbEstatusproy_sept<-function(admb,nesc,name,pF,nyears){
     polygon(xxa,yya,col=gray(0.7,0.5),border="gray85")
     polygon(xxb,yyb,col=gray(0.7,0.5),border="gray80")
     polygon(xxc,yyc,col=gray(0.7,0.5),border="gray95")
-    lines(xa,ya,lwd=1,col="green",lty=1)
+    lines(xa,ya,lwd=1,col="red",lty=1)
     lines(xb,yb,lwd=1,col="orange",lty=1)
-    lines(xc,yc,lwd=1,col="red",lty=1)
+    lines(xc,yc,lwd=1,col="green",lty=1)
     legend(0.1,5,c(paste("BD2018/19_IC95% = [",round(ica[1],2),"-",round(ica[2],2),"]",sep=" "),
                      paste("BD2019/20_IC95% = [",round(icb[1],2),"-",round(icb[2],2),"]",sep=" "),
                      paste("BD2020/21_IC95% = [",round(icc[1],2),"-",round(icc[2],2),"]",sep=" ")),
-           lty=c(1,1,1),col=c("green","orange","red"),bty="n",lwd=1,cex=0.7)
+           lty=c(1,1,1),col=c("red","orange","green"),bty="n",lwd=1,cex=0.7)
     box()
   }
 }
