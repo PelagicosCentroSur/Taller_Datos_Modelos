@@ -265,9 +265,15 @@
 # opt_qpela 
  5 
 
-# opt_qflo 
+# opt_qmph 
  4 
 
+# nbloq_qmph
+ 3 
+ 
+# ano_inicio_nbloq_qmph
+ 1991 2010 2013 
+ 
 # par 
 19 0.9 7.2 0.15 0.7 
 

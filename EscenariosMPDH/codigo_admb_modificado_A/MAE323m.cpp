@@ -80,6 +80,8 @@ model_data::model_data(int argc,char * argv[]) : ad_comm(argc,argv)
   opt_qrecl.allocate("opt_qrecl");
   opt_qpela.allocate("opt_qpela");
   opt_qmph.allocate("opt_qmph");
+  nqbloques3.allocate("nqbloques3");
+  yqbloques3.allocate(1,nqbloques3,"yqbloques3");
   pars_Bio.allocate(1,5,"pars_Bio");
   opt_Lo.allocate("opt_Lo");
   opt_cv.allocate("opt_cv");
@@ -114,6 +116,7 @@ void model_parameters::initializationfunction(void)
   log_M.set_initial_value(0);
   log_qrecl.set_initial_value(0);
   log_qpela.set_initial_value(0);
+  log_qmph.set_initial_value(0);
   if (global_datafile)
   {
     delete global_datafile;
@@ -140,7 +143,7 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   log_Ft.allocate(1,nanos,-6,1.6,opt_F,"log_Ft");
   log_qrecl.allocate(opt_qrecl,"log_qrecl");
   log_qpela.allocate(opt_qpela,"log_qpela");
-  log_qmph.allocate(opt_qmph,"log_qmph");
+  log_qmph.allocate(1,nqbloques3,opt_qmph,"log_qmph");
   log_Lo.allocate(1,2.4,opt_Lo,"log_Lo");
   log_cv_edad.allocate(-4,.69,opt_cv,"log_cv_edad");
   log_M.allocate(-0.3,0.4,opt_M,"log_M");
@@ -351,6 +354,10 @@ model_parameters::model_parameters(int sz,int argc,char * argv[]) :
   qpela.allocate("qpela");
   #ifndef NO_AD_INITIALIZE
   qpela.initialize();
+  #endif
+  qmph.allocate("qmph");
+  #ifndef NO_AD_INITIALIZE
+  qmph.initialize();
   #endif
   Reclas.allocate(1,nanos,"Reclas");
   #ifndef NO_AD_INITIALIZE
@@ -893,9 +900,15 @@ void model_parameters::Eval_indices(void)
 {
  Reclas_pred   = exp(log_qrecl)*Bcru;
  Pelaces_pred  = exp(log_qpela)*BMpel;
- MPH_pred      = exp(log_qmph)*Bmph;
+ //MPH_pred      = exp(log_qmph)*Bmph;
  qrecl         = exp(log_qrecl);
  qpela         = exp(log_qpela);
+ for (int i=1;i<=nanos;i++){
+   for (int j=1;j<=nqbloques3;j++){
+     if (anos(i)>=yqbloques3(j)){
+       MPH_pred(i)=mfexp(log_qmph(j))*Bmph(i);}
+    }
+   }
  //===============================================================================
 }
 

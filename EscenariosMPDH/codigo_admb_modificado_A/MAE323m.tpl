@@ -63,6 +63,10 @@ DATA_SECTION
   init_int    opt_qrecl
   init_int    opt_qpela
   init_int    opt_qmph
+  
+  init_int    nqbloques3 //numero bloques capturabilidad MPH
+  init_vector yqbloques3(1,nqbloques3)//year inicio capturabilidad MPH
+ 
 // 4. Par?metros de crecimiento
   init_vector pars_Bio(1,5)
 
@@ -110,7 +114,7 @@ INITIALIZATION_SECTION
   log_M       0
   log_qrecl   0
   log_qpela   0
-
+  log_qmph    0
 //##############################################################################
 
 PARAMETER_SECTION
@@ -140,7 +144,8 @@ PARAMETER_SECTION
 // capturabilidades
  init_number log_qrecl(opt_qrecl)
  init_number log_qpela(opt_qpela)
- init_number log_qmph(opt_qmph)
+ init_vector log_qmph(1,nqbloques3,opt_qmph)//mph				  
+ //init_number log_qmph(opt_qmph)
 
 // Crecimiento y M
  init_bounded_number log_Lo(1,2.4,opt_Lo)
@@ -231,6 +236,7 @@ PARAMETER_SECTION
   vector dtmph(1,nanos);		  
   number qrecl
   number qpela
+  number qmph						   
   vector Reclas(1,nanos);
   vector Reclas_pred(1,nanos);
   vector Pelaces(1,nanos);
@@ -636,11 +642,16 @@ FUNCTION Eval_indices
 //===============================================================================
  Reclas_pred   = exp(log_qrecl)*Bcru;
  Pelaces_pred  = exp(log_qpela)*BMpel;
- MPH_pred      = exp(log_qmph)*Bmph;
+ //MPH_pred      = exp(log_qmph)*Bmph;
 
  qrecl         = exp(log_qrecl);
  qpela         = exp(log_qpela);
- 
+ for (int i=1;i<=nanos;i++){
+   for (int j=1;j<=nqbloques3;j++){
+     if (anos(i)>=yqbloques3(j)){
+       MPH_pred(i)=mfexp(log_qmph(j))*Bmph(i);}
+    }
+   }
  
  //===============================================================================
 
