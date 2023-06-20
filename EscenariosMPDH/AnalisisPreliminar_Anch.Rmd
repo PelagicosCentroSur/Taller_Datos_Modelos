@@ -1,0 +1,225 @@
+---
+title: "Análisis preliminar anchoveta"
+author: "María José Zúñiga"
+date: "2023-06-20"
+output: pdf_document
+---
+
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(echo=F, warning=FALSE, message=FALSE,collapse=TRUE,fig.align="center",fig.pos="h!")
+```
+
+
+```{r results='hide'}
+## Librerías requeridas
+ paquetes <- c("stringr", "tidyverse", "kableExtra","ggplot2","ggthemes",
+               "patchwork","dplyr","reshape","here","pdftools","ggpubr","tidyr")
+ lapply(paquetes, require, character.only = TRUE)
+ 
+```
+
+
+```{r echo=FALSE}
+## Directorios de trabajo
+dir.0   <- here() 
+dir.s0   <- here("codigo_admb_modificado_A") 
+dir.fun <- here("funciones") 
+#dir.Rdata<-here("Rdata","Esc_CVcru")
+
+```
+
+
+```{r echo=FALSE}
+## Cargar funciones
+source(here(dir.fun,"functions.R")) 
+source(here(dir.fun,"Fn_CrearRdata.R"))
+source(here(dir.fun,"Fn_Data.frame.R"))
+source(here(dir.fun,"Fn_Figuras.R"))
+source(here(dir.fun,"Fn_Tablas.R"))
+source(here(dir.fun,"Fn_PBRs.R")) 
+source(here(dir.fun,"removefile.R"))										   									
+```
+
+# Revisión de los datos
+
+```{r eval=FALSE, include=F}
+## Compilar y ejecutar modelo ADMB
+setwd(dir.s0)
+#para mac
+system("~/admb-12.2/admb MAE323")
+system("./MAE323")
+
+source(here("funciones","removefile.R"))
+removefileadmb(dir.s0,"MAE323") 
+
+```
+
+# Generar escenarios de sensibilidad
+
+- m1: CV=100, dt fijo + q fijo
+- m2: CV=100, dt variable + q fijo
+- m3: CV=100, dt fijo + q variable
+- m4: CV=100, dt variable + q fijo
+
+- m1: CV=0.3, dt fijo + q fijo
+- m2: CV=0.3, dt variable + q fijo
+- m3: CV=0.3, dt fijo + q variable
+- m4: CV=0.3, dt variable + q fijo
+
+- m1: CV=0.5, dt fijo + q fijo
+- m2: CV=0.5, dt variable + q fijo
+- m3: CV=0.5, dt fijo + q variable
+- m4: CV=0.5, dt variable + q fijo
+
+- m1: CV=0.1, dt fijo + q fijo
+- m2: CV=0.1, dt variable + q fijo
+- m3: CV=0.1, dt fijo + q variable
+- m4: CV=0.1, dt variable + q fijo
+
+```{r}
+
+```
+
+
+
+```{r}
+data1        <- lisread(here("codigo_admb_modificado_A","MAE323m.dat")) 
+names(data1) <- str_trim(names(data1), side="right")
+dat1         <- data1
+rep1         <- reptoRlist(here("codigo_admb_modificado_A","MAE323m.rep"))
+std1         <- read.table(here("codigo_admb_modificado_A","MAE323m.std"),header=T,sep="",na="NA",fill=T) 
+```
+
+```{r}
+Datos<-dat1$Ind %>% data.frame()
+names(Datos)<-c("year","reclas","cv_R","pelaces","cv_P","mpdh","cv_M","desembarque","cv_D")
+kbl(Datos)
+```
+
+
+
+```{r fig.height=3,fig.width=4}
+Datos1<-Datos[,c(1,2,4,6)] %>% melt(id="year")
+Datos1[Datos1==0]<-NA
+
+ggplot(Datos1,aes(x=year,y=value/1000000))+xlim(2000,2024)+
+  geom_line(aes(color=variable))+geom_point(aes(color=variable))+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Anchoveta centro-sur")+
+  theme_bw()
+  
+
+```
+
+```{r}
+
+year<-rep1$years
+mph_obs<-rep1$mphobs
+mph_pred<-rep1$mphpred
+BD_modelo<-rep1$SSB
+
+Data1<-data.frame(year,mph_obs,mph_pred,BD_modelo)
+#Data1
+
+std1 %>% filter(name=="log_qrecl") 
+std1 %>% filter(name=="log_qpela")
+std1 %>% filter(name=="log_qmph")
+
+```
+
+```{r fig.height=3,fig.width=4}
+Data2<-Data1%>% melt(id="year")
+Data2[Data2==0]<-NA
+ggplot(Data2,aes(x=year,y=value/1000000))+xlim(2000,2024)+ylim(NA,1.0)+
+  geom_line(aes(color=variable),alpha=.3)+geom_point(aes(color=variable))+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Anchoveta centro-sur")+
+  theme_bw()
+```
+
+
+```{r}
+names_ind<- c('Crucero_verano', 
+                'Crucero_otoño',
+                'Crucero_huevos', 
+                'Desembarques') 
+  #observados 
+  years<-rep1$years
+  reclasobs     <-rep1$reclasobs %>% na_if(0)
+  pelacesobs    <-rep1$pelacesobs %>% na_if(0)
+  mphobs        <-rep1$mphobs %>% na_if(0)
+  desembarqueobs<-rep1$desembarqueobs %>% na_if(0)
+          #data.frame observados 
+          indobs  <- data.frame(
+                     reclasobs,
+                     pelacesobs,
+                     mphobs,
+                     desembarqueobs) %>% 
+                     #na_if(0) %>% 
+                     magrittr::set_colnames(names_ind) %>%
+                     mutate(Asesoria="Hito 2",type='observado',yrs= years) %>% 
+                     melt(id.var=c('yrs','type', 'Asesoria'))  
+          
+  #predichos
+  reclaspred     <-rep1$reclaspred 
+  pelacespred    <-rep1$pelacespred 
+  mphpred        <-rep1$mphpred
+  desembarquepred<-rep1$desembarquepred
+          #data.frame predichos
+          indpred  <- data.frame(
+                      reclaspred,
+                      pelacespred,
+                      mphpred,
+                      desembarquepred) %>% 
+                      #na_if(0) %>% 
+                      magrittr::set_colnames(names_ind) %>%
+                      mutate(Asesoria="Hito 2",type='predicho',yrs= years) %>% 
+                      melt(id.var=c('yrs','type', 'Asesoria')) 
+```
+
+
+```{r}
+ggplot(data=indobs,aes(x=yrs,y=value,color=variable))+
+       geom_point()+
+       geom_line(data=indpred,aes(x=yrs,y=value,color=variable))+
+  xlim(2000,2024)+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Anchoveta centro-sur")+
+  theme_bw()
+```
+
+
+
+```{r fig.height=6,fig.width=6}
+
+
+  DataRes <- indobs %>%
+              mutate(
+              Res=(log(indobs$value)-log(indpred$value)),
+              Pred=log(indpred$value))
+
+r1.1  <-ggplot(DataRes, aes(yrs,Res)) + 
+  geom_smooth()+
+  geom_bar(stat='identity', position='dodge') +
+  geom_hline(yintercept = 0) + 
+  facet_wrap(. ~ variable, ncol = 1) + 
+  labs(x= 'Año', y = 'Residuales (escala log)') +
+  theme_bw(base_size=9.5)
+
+r2.2  <-ggplot(DataRes, aes(Pred,Res)) + 
+  geom_smooth()+
+  geom_point(size = 1.5) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(. ~ variable, ncol = 1) +
+  labs(x= 'Predicho (log)', y = 'Residuales') + 
+  theme_bw(base_size=9.5)
+
+
+r4.4 <- ggplot(DataRes, aes(sample = Res)) + 
+  stat_qq() + 
+  stat_qq_line() + 
+  facet_wrap(. ~ variable, ncol = 1) +
+  labs(x= 'Sample Quantiles', y ='Theoretical') + 
+  theme_bw(base_size=9.5)
+
+r1.1+r2.2+r4.4
+
+```
+
