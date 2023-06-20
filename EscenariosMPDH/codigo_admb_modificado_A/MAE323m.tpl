@@ -29,7 +29,7 @@ DATA_SECTION
   init_vector edades(1,nedades)
   init_vector Tallas(1,ntallas)
   init_vector msex(1,nedades)
-  init_matrix matdat(1,nanos,1,9)
+  init_matrix matdat(1,nanos,1,10)
   init_matrix Ctot(1,nanos,1,nedades)
   init_matrix Ccru_a(1,nanos,1,nedades)
   init_matrix Ccru_pel(1,nanos,1,nedades)
@@ -197,7 +197,8 @@ PARAMETER_SECTION
   matrix N(1,nanos,1,nedades)
   matrix NM(1,nanos,1,nedades)
   // 4.3. Matrices y vectores abundancia derivadas
-  matrix NVflo(1,nanos,1,nedades)
+  matrix matrix_msex(1,nanos,1,nedades)
+  matrix NVmph(1,nanos,1,nedades)
   matrix NVcru(1,nanos,1,nedades)
   matrix NVpel(1,nanos,1,nedades)
   matrix NVpel_l(1,nanos,1,ntallas)
@@ -207,7 +208,7 @@ PARAMETER_SECTION
   sdreport_vector SSB(1,nanos) 
   vector BD(1,nanos);
   sdreport_vector BT(1,nanos) 
-  vector BMflo(1,nanos);
+  vector Bmph(1,nanos);
   vector BMpel(1,nanos);
   vector Bcru(1,nanos);
   //=====================================
@@ -227,6 +228,7 @@ PARAMETER_SECTION
   //==================================================
   // 6. INDICES DE ABUNDANCIA observadas y predichas
   //==================================================
+  vector dtmph(1,nanos);		  
   number qrecl
   number qpela
   vector Reclas(1,nanos);
@@ -364,6 +366,7 @@ PRELIMINARY_CALCS_SECTION
   Desemb=column(matdat,8);
   cvar(4)=column(matdat,9);
 
+  dtmph=column(matdat,10);																
   Unos_edad=1;;// lo uso en  operaciones matriciales con la edad
   Unos_anos=1;// lo uso en operaciones matriciales con el a?o
   Unos_tallas=1;// lo uso en operaciones matriciales con el a?o
@@ -583,13 +586,19 @@ FUNCTION Eval_biomasas
   NVcru    = NVcru*error_edad;
   NVpel    = NVpel*error_edad;
   }
+  
+  // desovante y MPDH
+  matrix_msex=outer_prod(Unos_anos,msex);									 
+  for(int i=1;i<=nanos;i++){
+  NVmph(i)  = elem_prod(elem_prod(N(i),mfexp(-dtmph(i)*Z(i))),matrix_msex(i));
+  }
   NMD      = elem_prod(elem_prod(N,mfexp(-dt(3)*Z)),outer_prod(Unos_anos,msex));// desovante y MPH
-  NVflo    = elem_prod(elem_prod(N,mfexp(-dt(4)*Z)),Sel_f);// explotable
+  //NVflo    = elem_prod(elem_prod(N,mfexp(-dt(4)*Z)),Sel_f);// explotable
   Reclutas = column(N,1);
 // vectores de biomasas derivadas
   BD       = rowsum(elem_prod(NMD,Win));      // Desovante
   BT       = rowsum(elem_prod(N,Win));        // Total inicios de a?o biol
-  BMflo    = rowsum(elem_prod(NVflo,Win));    // Biomasa explotable
+  Bmph    = rowsum(elem_prod(NVmph,Win));    // mpdh
   BMpel    = rowsum(elem_prod(NVpel,Win));    // pelaces
   Bcru     = rowsum(elem_prod(NVcru,Wmed));   // Reclas, mitad a?o biol
 //===============================================================================
@@ -627,7 +636,7 @@ FUNCTION Eval_indices
 //===============================================================================
  Reclas_pred   = exp(log_qrecl)*Bcru;
  Pelaces_pred  = exp(log_qpela)*BMpel;
- MPH_pred      = exp(log_qmph)*BD;
+ MPH_pred      = exp(log_qmph)*Bmph;
 
  qrecl         = exp(log_qrecl);
  qpela         = exp(log_qpela);

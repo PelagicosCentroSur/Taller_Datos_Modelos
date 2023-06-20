@@ -592,7 +592,7 @@ FUNCTION Eval_biomasas
 // vectores de biomasas derivadas
   BD       = rowsum(elem_prod(NMD,Win));      // Desovante
   BT       = rowsum(elem_prod(N,Win));        // Total inicios de a?o biol
-  Bmph   = rowsum(elem_prod(NVmph,Win));    // Biomasa explotable
+  Bmph   = rowsum(elem_prod(NVmph,Win));    // mpdh
   Bpelaces = rowsum(elem_prod(NVpelaces,Win));    // pelaces
   Breclas  = rowsum(elem_prod(NVreclas,Wmed));   // Reclas, mitad a?o biol
 //===============================================================================
