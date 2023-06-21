@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo=F, warning=FALSE, message=FALSE,collapse=TRUE,fig.ali
 ```{r echo=FALSE}
 ## Directorios de trabajo
 dir.0   <- here() 
-dir.s0   <- here("codigo_admb_modificado") 
+dir.s0   <- here("codigo_admb_modificado_S") 
 dir.fun <- here("funciones") 
 #dir.Rdata<-here("Rdata","Esc_CVcru")
 
@@ -53,40 +53,232 @@ removefileadmb(dir.s0,"MAE323")
 
 ```
 
+
 # Generar escenarios de sensibilidad
 
 - m1: CV=100, dt fijo + q fijo
 - m2: CV=100, dt variable + q fijo
-- m3: CV=100, dt fijo + q variable
-- m4: CV=100, dt variable + q fijo
+- m3: CV=100, dt fijo + q bloques
+- m4: CV=100, dt variable + q bloque
 
 - m1: CV=0.3, dt fijo + q fijo
 - m2: CV=0.3, dt variable + q fijo
-- m3: CV=0.3, dt fijo + q variable
+- m3: CV=0.3, dt fijo + q bloques
 - m4: CV=0.3, dt variable + q fijo
 
 - m1: CV=0.5, dt fijo + q fijo
 - m2: CV=0.5, dt variable + q fijo
-- m3: CV=0.5, dt fijo + q variable
+- m3: CV=0.5, dt fijo + q bloques
 - m4: CV=0.5, dt variable + q fijo
 
 - m1: CV=0.1, dt fijo + q fijo
 - m2: CV=0.1, dt variable + q fijo
-- m3: CV=0.1, dt fijo + q variable
+- m3: CV=0.1, dt fijo + q bloques
 - m4: CV=0.1, dt variable + q fijo
 
 ```{r}
+
+NombrecarpetaEsc<-"Sensibilidad_mpdh2023"
+# 2. Crear un nuevo directorio  donde se encuentran los análisis de sensibilidad
+dir.esc <- here(NombrecarpetaEsc)
+dir.create(path=dir.esc, showWarnings = TRUE, recursive = TRUE)
+file.copy(c(here("codigo_admb_modificado_S","MAE323m.dat"),here("codigo_admb_modificado_S","MAE323m.tpl")),dir.esc)
+
+
+# Caso base
+data1        <- lisread(here("codigo_admb_modificado_S","MAE323m.dat")) 
+names(data1) <- str_trim(names(data1), side="right")
+dat1         <- data1
+#------------------------------------------
+#S1 CV = 100, dt fijo y q fijo
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- 0.16 # dt fijo
+dat1$nbloq_qmph <- 1 # bloques q
+dat1$ano_inicio_nbloq_qmph <- 1991 # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m1.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m1.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S2 CV = 100, dt variable y q fijo
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 1 # bloques q
+dat1$ano_inicio_nbloq_qmph <- 1991 # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m2.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m2.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S3 CV = 100, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m3.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m3.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S4 CV = 0.3, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.3 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m4.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m4.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+
+#------------------------------------------
+#S5 CV = 0.3, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.1 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m5.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m5.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S6 CV = 0.5, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.5 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m6.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m6.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+
+dat1         <- data1
+
+```
+
+```{r eval=FALSE, include=F}
+## Compilar y ejecutar modelo ADMB
+
+setwd(here(NombrecarpetaEsc))
+
+nesc<-6
+for(i in 1:nesc){
+#para mac
+system(paste("~/admb-12.2/admb MAE323m",i,sep=""))
+system(paste("./MAE323m",i,sep=""))
+
+source(here("funciones","removefile.R"))
+removefileadmb(here(NombrecarpetaEsc),paste("MAE323m",i,sep="")) 
+}
+
+```
+
+
+```{r}
+nesc<-6
+#indicadores
+nyears<-dat1$nanos
+years<-dat1$Ind[,1]
+
+mpdh_obs<-dat1$Ind[,6];mpdh_obs[mpdh_obs==0]<-NA
+reclas_obs<-dat1$Ind[,2];reclas_obs[reclas_obs==0]<-NA
+pelaces_obs<-dat1$Ind[,4];pelaces_obs[pelaces_obs==0]<-NA
+
+mpdh_pred<-matrix(nrow=nyears,ncol=nesc)
+reclas_pred<-matrix(nrow=nyears,ncol=nesc)
+pelaces_pred<-matrix(nrow=nyears,ncol=nesc)
+
+BD<-matrix(nrow=nyears,ncol=nesc)
+Rt<-matrix(nrow=nyears,ncol=nesc)
+Ft<-matrix(nrow=nyears,ncol=nesc)
+escenarios<-rep(0,nesc)
+for(i in 1:nesc){
+rep1.1<- reptoRlist(paste(here(NombrecarpetaEsc),"/MAE323m",i,".rep",sep=""))
+mpdh_pred[,i]<- rep1.1$mphpred
+reclas_pred[,i]<-rep1.1$reclaspred
+pelaces_pred[,i]<-rep1.1$pelacespred
+
+BD[,i]<-rep1.1$SSB
+Rt[,i]<-rep1.1$Reclutas
+Ft[,i]<-rep1.1$Ftot
+
+
+escenarios[i]<-paste("S",i,sep="")
+}
+
+
+colnames(mpdh_pred)<-escenarios
+colnames(reclas_pred)<-escenarios
+colnames(pelaces_pred)<-escenarios
+
+colnames(BD)<-escenarios
+colnames(Rt)<-escenarios
+colnames(Ft)<-escenarios
+
 
 ```
 
 
 
+
 ```{r}
-data1        <- lisread(here("codigo_admb_modificado","MAE323m.dat")) 
+BDplot<-BD %>% data.frame() %>%  mutate(years=years) %>% melt(id="years")
+Rtplot<-Rt %>% data.frame() %>%  mutate(years=years) %>% melt(id="years")
+Ftplot<-Ft %>% data.frame() %>%  mutate(years=years) %>% melt(id="years")
+
+p1<-ggplot(BDplot,aes(x=years,y=value/1000000,color=variable))+geom_line()+
+  ylab("Biomasa Desovante")+xlab("")+theme_bw()
+p2<-ggplot(Rtplot,aes(x=years,y=value/1000000,color=variable))+geom_line()+
+  ylab("Reclutamientos")+xlab("")+theme_bw()
+p3<-ggplot(Ftplot,aes(x=years,y=value/1000000,color=variable))+geom_line()+
+  ylab("Mortalidad por pesca")+xlab("")+theme_bw()
+
+ggarrange(p1,p2,p3)
+```
+
+
+
+```{r fig.height=3,fig.width=4}
+mpdhplot    <-mpdh_pred %>% data.frame() %>%  mutate(years=years,observado=mpdh_obs) %>% melt(id=c("years"))
+reclasplot  <-reclas_pred %>% data.frame() %>%  mutate(years=years,observado=reclas_obs) %>% melt(id="years")
+pelacesplot <-pelaces_pred %>% data.frame() %>%  mutate(years=years,observado=pelaces_obs) %>% melt(id="years")
+
+p1<-ggplot(mpdhplot,aes(x=years,y=value/1000000,color=variable))+
+  geom_line()+geom_point()+xlim(2000,2024)+
+  ylab("mpdh")+xlab("")+theme_bw()
+p2<-ggplot(reclasplot,aes(x=years,y=value/1000000,color=variable))+
+  geom_line()+geom_point()+xlim(2000,2024)+
+  ylab("reclas")+xlab("")+theme_bw()
+p3<-ggplot(pelacesplot,aes(x=years,y=value/1000000,color=variable))+
+  geom_line()+geom_point()+xlim(2000,2024)+
+  ylab("pelaces")+xlab("")+theme_bw()
+
+ggarrange(p1,p2,p3,ncol=1)
+```
+
+
+
+```{r}
+data1        <- lisread(here("codigo_admb_modificado_S","MAE323m.dat")) 
 names(data1) <- str_trim(names(data1), side="right")
 dat1         <- data1
-rep1         <- reptoRlist(here("codigo_admb_modificado","MAE323m.rep"))
-std1         <- read.table(here("codigo_admb_modificado","MAE323m.std"),header=T,sep="",na="NA",fill=T) 
+rep1         <- reptoRlist(here("codigo_admb_modificado_S","MAE323m.rep"))
+std1         <- read.table(here("codigo_admb_modificado_S","MAE323m.std"),header=T,sep="",na="NA",fill=T) 
 ```
 
 ```{r}
@@ -176,18 +368,19 @@ names_ind<- c('Crucero_verano',
 
 
 ```{r}
+
 ggplot(data=indobs,aes(x=yrs,y=value,color=variable))+
        geom_point()+
        geom_line(data=indpred,aes(x=yrs,y=value,color=variable))+
   xlim(2000,2024)+
   ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
   theme_bw()
+
 ```
 
 
 
 ```{r fig.height=6,fig.width=6}
-
 
   DataRes <- indobs %>%
               mutate(
@@ -210,7 +403,6 @@ r2.2  <-ggplot(DataRes, aes(Pred,Res)) +
   labs(x= 'Predicho (log)', y = 'Residuales') + 
   theme_bw(base_size=9.5)
 
-
 r4.4 <- ggplot(DataRes, aes(sample = Res)) + 
   stat_qq() + 
   stat_qq_line() + 
@@ -221,4 +413,7 @@ r4.4 <- ggplot(DataRes, aes(sample = Res)) +
 r1.1+r2.2+r4.4
 
 ```
+
+
+
 
