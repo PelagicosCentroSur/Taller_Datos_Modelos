@@ -76,10 +76,101 @@ removefileadmb(dir.s0,"MAE323")
 - m3: CV=0.1, dt fijo + q variable
 - m4: CV=0.1, dt variable + q fijo
 
+
 ```{r}
 
-```
+NombrecarpetaEsc<-"Sensibilidad_mpdh2023_Anch"
+# 2. Crear un nuevo directorio  donde se encuentran los análisis de sensibilidad
+dir.esc <- here(NombrecarpetaEsc)
+dir.create(path=dir.esc, showWarnings = TRUE, recursive = TRUE)
+file.copy(c(here("codigo_admb_modificado_S","MAE323m.dat"),here("codigo_admb_modificado_S","MAE323m.tpl")),dir.esc)
 
+
+# Caso base
+data1        <- lisread(here("codigo_admb_modificado_S","MAE323m.dat")) 
+names(data1) <- str_trim(names(data1), side="right")
+dat1         <- data1
+#------------------------------------------
+#S1 CV = 100, dt fijo y q fijo
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- 0.16 # dt fijo
+dat1$nbloq_qmph <- 1 # bloques q
+dat1$ano_inicio_nbloq_qmph <- 1991 # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m1.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m1.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S2 CV = 100, dt variable y q fijo
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 1 # bloques q
+dat1$ano_inicio_nbloq_qmph <- 1991 # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m2.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m2.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S3 CV = 100, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 100 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m3.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m3.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S4 CV = 0.3, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.3 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m4.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m4.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+
+#------------------------------------------
+#S5 CV = 0.3, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.15 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m5.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m5.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+#------------------------------------------
+#S6 CV = 0.5, dt variable y q bloque
+dat1         <- data1
+dat1$Ind[,7] <- 0.5 # cv mpdh
+dat1$Ind[,10] <- c(rep(0.16,12),
+                   .13,.15,.14,.14,.16,.16,.18,.18,.20,.23,.27,
+                   .24,.19,.24,.19,.16,.19,.14,.24,.27,.20) # dt variable
+dat1$nbloq_qmph <- 3 # bloques q
+dat1$ano_inicio_nbloq_qmph <- c(1991,2010,2013) # año inicio q
+
+writeData(here(NombrecarpetaEsc,"MAE323m6.dat"), dat1, append=F)
+file.rename(here(NombrecarpetaEsc,"MAE323m.tpl"),here(NombrecarpetaEsc,"MAE323m6.tpl"))
+file.copy(here("codigo_admb_modificado_S","MAE323m.tpl"),dir.esc)
+
+dat1         <- data1
+
+```
 
 
 ```{r}
