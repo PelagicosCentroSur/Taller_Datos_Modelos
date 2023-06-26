@@ -607,6 +607,43 @@ fig12 <-function(Rdata_perfil,asesoria,xlimperfil){
   fig
 }
 
+# 7.1. Perfil de verosimilitud ----
+
+fig12.1 <-function(Rdata_perfil,asesoria,xlimperfil){
+  
+  load(Rdata_perfil)
+  
+  fig<-ggplot() +
+    geom_line(aes(x = TLk2$Ro, y = TLk2$Bio_Reclas, colour=names[2])) +
+    geom_line(aes(x = TLk2$Ro, y = TLk2$Bio_Pelaces, colour=names[3])) +
+    #geom_line(aes(x = TLk2$Ro, y = TLk2$Desembarques,colour=names[4])) +
+    geom_line(aes(x = TLk2$Ro, y = TLk2$Bio_Mph,colour=names[5])) +
+    #geom_line(aes(x = TLk2$Ro, y = TLk2$C.Edad_Flota,colour=names[6])) +
+    #geom_line(aes(x = TLk2$Ro, y = TLk2$C.Edad_Recl,colour=names[7])) +
+    #geom_line(aes(x = TLk2$Ro, y = TLk2$C.Edad_Pel,colour=names[8])) +
+    geom_line(aes(x = TLk2$Ro, y = TLk2$Total,colour=names[17])) +
+    geom_hline(yintercept = 2,colour='black',lty=2) +
+    #scale_colour_manual("",values=c('cyan','magenta','gray',"orange","green","blue","red","black"))+
+    scale_colour_manual("",values=c("green","blue","red","black"))+
+    coord_cartesian(xlim = xlimperfil, ylim = c(0, 3))+
+    xlab(expression("R"[0])) + 
+    ylab("L-min(L)") + 
+    ggtitle(asesoria)+
+    theme_bw(base_size=10) +
+    theme(plot.title = element_text(hjust = 0.5),legend.position="right")  
+  #fig<-ggplot(data = datares, aes(x = reorder(names_res,residuos), y = residuos)) +
+  #      ylim(-2, 3)+
+  #      geom_bar(stat = "identity",fill="azure3") +
+  #      coord_flip() + # Barras horizontales
+  #      xlab("") + 
+  #      ylab("Diferencia porcentual de Ro") + 
+  #      theme_bw(base_size=10) +
+  #     ggtitle("Anchoveta Centro-sur")+
+  #      theme(plot.title = element_text(hjust = 0.5))
+  
+  fig
+}
+
 # 8. Variables poblacionales ----
 
 fig13<-function(Rdata_H1,Rdata_H2,Rdata_H3,HITOact,opt.IND,opt.name_IND,col_line,type_line,col_fill,xtext){
