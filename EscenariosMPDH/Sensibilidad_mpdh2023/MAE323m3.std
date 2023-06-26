@@ -1,19 +1,19 @@
  index   name              value      std.dev
      1   A50flota          2.3733e-01 1.7254e-01
-     2   log_rangoflota   -2.6822e-07 5.3643e-04
-     3   A50reclas        -2.4803e-02 8.9846e+02
+     2   log_rangoflota   -2.6831e-07 5.3657e-04
+     3   A50reclas        -2.4784e-02 8.9842e+02
      4   log_rangoreclas  -2.6417e+00 1.7422e+03
-     5   A50pelaces        1.3193e-03 9.0373e+02
-     6   log_rangopelaces -2.5656e+00 1.8449e+03
+     5   A50pelaces        1.3334e-03 9.0363e+02
+     6   log_rangopelaces -2.5656e+00 1.8447e+03
      7   log_Ro            1.1691e+01 1.0474e-01
      8   log_desv_No      -5.2966e-01 1.0694e+00
      9   log_desv_No       1.4746e+00 4.1875e-01
     10   log_desv_No      -2.4643e-01 4.4842e+00
-    11   log_desv_No      -9.9699e+00 1.3275e+02
+    11   log_desv_No      -9.9699e+00 1.3269e+02
     12   log_desv_Rt       1.8717e-01 2.9683e-01
     13   log_desv_Rt      -4.0139e-01 2.6484e-01
     14   log_desv_Rt      -3.7181e-01 2.6799e-01
-    15   log_desv_Rt       2.8930e-02 3.5514e-01
+    15   log_desv_Rt       2.8929e-02 3.5514e-01
     16   log_desv_Rt      -1.7527e-01 3.5569e-01
     17   log_desv_Rt       3.8810e-01 2.5406e-01
     18   log_desv_Rt      -5.2012e-01 3.1191e-01
@@ -78,9 +78,9 @@
     77   log_Ft           -1.1939e+00 2.8144e-01
     78   log_qrecl         2.2466e-01 1.8174e-01
     79   log_qpela         4.3493e-01 2.0727e-01
-    80   log_qmph         -1.3907e+00 4.4722e+01
-    81   log_qmph         -9.0374e-01 5.7735e+01
-    82   log_qmph         -2.3814e+00 3.1623e+01
+    80   log_qmph         -1.4077e+00 4.4722e+01
+    81   log_qmph         -8.4141e-01 5.7735e+01
+    82   log_qmph         -2.3113e+00 3.1623e+01
     83   log_Fref          3.0301e-01 3.3568e-02
     84   log_Fref          7.5137e-01 8.9116e-02
     85   Reclutas          1.7255e+05 5.1537e+04
@@ -121,7 +121,7 @@
    120   SSB               7.2349e+05 1.5542e+05
    121   SSB               4.0127e+05 8.7030e+04
    122   SSB               4.3155e+05 1.6553e+05
-   123   SSB               5.0748e+05 1.8540e+05
+   123   SSB               5.0748e+05 1.8541e+05
    124   SSB               6.6977e+05 2.0329e+05
    125   SSB               3.6498e+05 1.5035e+05
    126   SSB               3.3454e+05 1.2388e+05
