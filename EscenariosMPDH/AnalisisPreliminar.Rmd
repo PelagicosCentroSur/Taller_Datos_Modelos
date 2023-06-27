@@ -55,21 +55,20 @@ removefileadmb(dir.s0,"MAE323")
 
 
 # Generar escenarios de sensibilidad
-
-
-```{r}
-
+```{r }
 NombrecarpetaEsc<-"Sensibilidad_mpdh2023"
 # 2. Crear un nuevo directorio  donde se encuentran los análisis de sensibilidad
 dir.esc <- here(NombrecarpetaEsc)
 dir.create(path=dir.esc, showWarnings = TRUE, recursive = TRUE)
-file.copy(c(here("codigo_admb_modificado_S","MAE323m.dat"),here("codigo_admb_modificado_S","MAE323m.tpl")),dir.esc)
+file.copy(c(here("codigo_admb_modificado_S","MAE323m.dat"),
+            here("codigo_admb_modificado_S","MAE323m.tpl")),dir.esc)
 
 
 # Caso base
 data1        <- lisread(here("codigo_admb_modificado_S","MAE323m.dat")) 
 names(data1) <- str_trim(names(data1), side="right")
 dat1         <- data1
+
 
 #Datos para escenarios
 
@@ -96,6 +95,13 @@ dtmpdh<-c(rep(0.16,12),
 # cvmpdh<-c(rep(0.30,8),
 #           .289,.30,.368,.441,.30,.380,1.050,.578,.494,.390,
 #           1.650,.605,.30,.145,.139,.30,.251,.30,.261,NA)
+
+
+```
+
+
+```{r eval=FALSE}
+
 
 #------------------------------------------
 #S1 CV = 100, dt fijo y q fijo
@@ -342,11 +348,240 @@ colnames(Rt)<-escenarios
 colnames(Ft)<-escenarios
 
 ```
+\newpage
+
+# Revisión de los datos del Método de Producción Diaria de Huevos (MPDH)
+
+```{r}
+data1        <- lisread(here("Sensibilidad_mpdh2023","MAE323m1.dat")) 
+names(data1) <- str_trim(names(data1), side="right")
+dat1         <- data1
+rep1         <- reptoRlist(here("Sensibilidad_mpdh2023","MAE323m1.rep"))
+std1         <- read.table(here("Sensibilidad_mpdh2023","MAE323m1.std"),header=T,sep="",na="NA",fill=T) 
+```
+
+```{r}
+Datos<-dat1$Ind[,c(1:7,10)] %>% data.frame()
+names(Datos)<-c("year","Crucero_verano","cv_V","Crucero_otoño","cv_O","Crucero_huevos","cv_H","dt_H")
+
+caption1<-"\\label{tab1}Índices de abundancia con los coeficientes de variación utilizados en el modelo de evaluación de stock de sardina común."
+
+Datos %>% kbl(booktabs = T,format = "latex",position="h!", align='l',escape=F,
+col.names=linebreak(c("Año","Crucero\nverano","cvV","Crucero\notoño","cvO","Crucero\nhuevos","cvH","dtH"), align='c'),caption=caption1) %>%  
+kable_styling(latex_options = c("striped", "hover","condensed"),
+full_width = FALSE,font_size=9)
+```
+
+\newpage
+
+```{r fig.height=2.5,fig.width=5,fig.cap="\\label{Fig1}Índices de biomasa estimados en los cruceros de verano, otoño y huevos."}
+Datos1<-Datos[,c(1,2,4,6)] %>% melt(id="year")
+Datos1[Datos1==0]<-NA
+
+ggplot(Datos1,aes(x=year,y=value/1000000))+xlim(2000,2024)+
+  geom_line(aes(color=variable))+geom_point(aes(color=variable),size=2)+
+  scale_color_manual(name="Índices de biomasa",
+                     labels=c("Crucero Verano","Crucero Otoño","Crucero Huevos"),
+                     values=c("black","red","green"))+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
+  theme_bw(base_size=9.5)
+```
+
+
+
+```{r}
+names_ind<- c('Crucero_verano','Crucero_otoño','Crucero_huevos') 
+  #observados 
+  years<-rep1$years
+  reclasobs     <-rep1$reclasobs %>% na_if(0)
+  pelacesobs    <-rep1$pelacesobs %>% na_if(0)
+  mphobs        <-rep1$mphobs %>% na_if(0)
+  #data.frame observados 
+  indobs  <- data.frame(reclasobs,pelacesobs,mphobs) %>% 
+                     magrittr::set_colnames(names_ind) %>%
+                     mutate(Asesoria="Hito 2",type='observado',yrs= years) %>% 
+                     melt(id.var=c('yrs','type', 'Asesoria'))  
+  #predichos
+  reclaspred     <-rep1$reclaspred 
+  pelacespred    <-rep1$pelacespred 
+  mphpred        <-rep1$mphpred
+  #data.frame predichos
+  indpred  <- data.frame(reclaspred,pelacespred,mphpred) %>% 
+                      magrittr::set_colnames(names_ind) %>%
+                      mutate(Asesoria="Hito 2",type='predicho',yrs= years) %>% 
+                      melt(id.var=c('yrs','type', 'Asesoria')) 
+```
+
+
+```{r fig.height=2.5,fig.width=5,fig.cap="\\label{Fig2}Índices de biomasa observados (puntos) y estimados (línea) por el modelo de evaluación de stock de sardina común."}
+
+ggplot(data=indobs,aes(x=yrs,y=value/1000000,color=variable))+
+  geom_point(aes(color=variable),size=2)+
+  geom_line(data=indpred,aes(x=yrs,y=value/1000000,color=variable))+
+  xlim(2000,2024)+
+  scale_color_manual(name="Índices de biomasa",
+                     labels=c("Crucero Verano","Crucero Otoño","Crucero Huevos"),
+                     values=c("black","red","green"))+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
+  theme_bw(base_size=9.5)
+
+```
+
+
+```{r}
+
+year<-rep1$years
+mph_obs<-rep1$mphobs
+mph_pred<-rep1$mphpred
+BD_modelo<-rep1$SSB
+
+Data1<-data.frame(year,mph_obs,mph_pred,BD_modelo)
+#Data1
+```
+
+\newpage
+
+```{r fig.height=2.5,fig.width=5,fig.cap="\\label{Fig2}Comparación de Biomasa desovante estimada por el método de producción diaria de huevos y modelo de evaluación de stock"}
+
+Data2<-Data1%>% melt(id="year")
+Data2[Data2==0]<-NA
+ggplot(Data2,aes(x=year,y=value/1000000))+xlim(2000,2024)+ylim(NA,1.5)+
+  geom_line(aes(color=variable),alpha=.3)+geom_point(aes(color=variable))+
+  scale_color_manual(name="Biomasas ",
+                     labels=c("BD mpdh observada","BD mpdh predicho","BD modelo"),
+                     values=c("green","blue","black"))+
+  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
+  theme_bw(base_size=9.5)
+```
+
+
+
+```{r}
+
+q1<-std1 %>% filter(name=="log_qrecl")
+q2<-std1 %>% filter(name=="log_qpela")
+q3<-std1 %>% filter(name=="log_qmph")
+
+q_indices<-c(q1$value,q2$value,q3$value)
+
+
+caption1<-"\\label{tab2}Comparación de coeficiente de capturabilidad estimada por el modelo de evaluación de stock de sardina común para cada índice de biomasa."
+
+datapar<-data.frame(indices=c("Crucero Verano","Crucero Otoño","Crucero Huevos"),
+                    dt=c(0.5,0.83,0.16),
+                    cv=c(0.3,0.3,100),
+                    q=round(exp(q_indices),2))
+
+
+datapar %>% kbl(booktabs = T,format = "latex",position="h!", align='c',escape=F,
+col.names=linebreak(c("Índices de\nbiomasa","dt","CV","Capturabilidad\nq"), align='c'),caption=caption1) %>%  
+kable_styling(latex_options = c("striped", "hover","condensed"),
+full_width = FALSE,font_size=9)
+```
+
+\newpage
+
+```{r}
+yearF<-c(2022,2021,2020,2019,2018,2017,2016,2015,2014,2013,2012,2011,2010,2009,2008,2007,2006,2005,2004,2003,2002)
+fechainicio<-c("10/09/2022","08/10/2021","27/09/2020","20/08/2019","09/09/2018",
+               NA,"06/09/2016","27/09/2015","06/09/2014","27/09/2013",
+               "07/10/2012","21/09/2011","10/09/2010","03/09/2009","05/09/2008",
+               "29/08/2007",NA,"21/08/2005","21/08/2004","23/08/2003","15/08/2002") %>% as.Date(format="%d/%m/%Y")
+fechatermino<-c("12/11/2022","13/11/2021","19/10/2020","28/10/2019","24/10/2018",
+                NA,"21/10/2016","27/10/2015","21/10/2014","27/10/2013","29/10/2012",
+                "15/10/2011","15/10/2010","05/10/2009","26/09/2008","28/09/2007",
+                NA,"22/09/2005","29/09/2004","29/10/2003","12/09/2002")%>% as.Date(format="%d/%m/%Y")
+
+diascrucero<-as.integer(fechatermino-fechainicio)
+
+CVmpdh_var<-rev(c(.289,0.3,.368,.441,NA,.380,1.050,.578,.494,.390,
+          1.650,.605,.145,.139,.30,NA,.251,.30,.261,NA,NA))
+
+
+desove<-rep(0,length(yearF))
+for(i in 1:length(yearF)){desove[i]<-paste("01/07/",yearF[i],sep="")}
+desove<-as.Date(desove,format="%d/%m/%Y")
+
+iniciodesove<-as.integer(difftime(fechainicio, desove, units = "days"))
+fraccionyear<-round(iniciodesove/365,2)
+
+yearBio<-paste(yearF,substr((yearF+1),3,4),sep="-")
+
+
+
+dtMPDHvar <- data.frame(yearF,fechainicio,fechatermino,diascrucero,CVmpdh_var,yearBio,fraccionyear)
+
+
+caption1<-"\\label{tab3}Fechas de inicio, término y duración en días de los cruceros de huevos. Fracción del año biológico considerando la fecha de inicio del crucero"
+
+opts<-options(knitr.kable.NA="-")
+dtMPDHvar%>% kbl(booktabs = T,format = "latex",position="h!", align='c',escape=F,caption=caption1,col.names=linebreak(c("Año\nCrucero","Fecha de\ninicio","Fecha de\ntérmino","Duración del\ncrucero","CV\ncrucero","Año\nbiológico","Fracción del\naño biológico (dt)"),align='c'))%>%  
+kable_styling(latex_options = c("striped", "hover","condensed"),
+full_width = FALSE,font_size=9)
+
+```
+
+```{r fig.height=2.5,fig.width=4,fig.cap="\\label{Fig3}Fracción del año biológico en que comienza el crucero de huevos por año"}
+p1<-ggplot(dtMPDHvar,aes(x=yearF,y=diascrucero))+geom_line()+geom_point()+ 
+  ylab("Duración del crucero")+xlab("")+theme_bw()
+p2<-ggplot(dtMPDHvar,aes(x=yearF,y=fraccionyear))+geom_line()+geom_point()+ 
+  ylab("Fracción del año biológico")+xlab("")+theme_bw()
+pm<-ggplot(dtMPDHvar,aes(x=yearF,y=fraccionyear))+geom_line()+geom_point()+ 
+  ylab("Fracción del año biológico")+xlab("")+theme_bw()
+ggarrange(p2,ncol=1,common.legend = T)
+```
+
+\newpage
+
+```{=tex}
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=1\textwidth]{Figuras/distribucionEspacialHuevosSardina.png}
+\caption{Distribución espacial de huevos de sardina común desde el año 2002 al 2021 (Fuente: Grendi et al 2022 ) .}
+\label{Fig4}
+\end{figure}
+```
+
+
+
+# Escenarios de sensibilidad del índice de biomasa desovante estimada por el MPDH
+
+
+```{r}
+Casobase<-"CV C.huevos=100, dt_C.huevos=0.16 y bloque_q_C.huevos=0"
+S2<-"S1 + dt_C.huevos=variable"
+S3<-"S2 + bloque_q_C.huevos=3"
+S4<-"S3 + CV C.huevos=0.30"
+S5<-"S3 + CV C.huevos=0.15 (alta ponderación)"
+S6<-"S3 + CV C.huevos=0.50 (baja ponderación)"
+S7<-"S4 + CV C.verano=100 (no aporta información)"
+S8<-"S4 + CV C.otoño=100 (no aporta información)"
+S9<-"S4 + CV C.verano=0.15 y CV C.otoño=0.25"
+
+tablaEsc<-data.frame("Escenarios"=c("S1","S2","S3","S4","S5","S6","S7","S8","S9"),
+                     "Descripción"=c(Casobase,S2,S3,S4,S5,S6,S7,S8,S9))
+
+
+caption1<-"\\label{tab4}Escenarios de sensibilidad del índice de biomasa desovante estimada por el Método de Producción Diaria de Huevos (MPDH)."
+
+tablaEsc %>%  
+  kbl(booktabs = T,format = "latex",position="h!", align='l',
+      caption=caption1) %>%  
+  kable_styling(latex_options = c("striped", "hover","condensed"),
+                full_width = FALSE,font_size=10) %>% 
+column_spec(1,italic=T) %>%
+  pack_rows(index=c("Caso base "=1,
+                    "Cambios en dt_C.huevos y bloque_q_C.huevos"=2,
+                    "S3 y Cambios en CV C.huevos"=3,
+                    "S4 y Cambios en CV C.verano y C.otoño"=3))
+
+
+```
 
 
 \newpage
 
-# S1: CV mph = 100
+# Cambios en dt  y bloques de capturabilidad biomasa desovante del índice de biomasa desovante (MPDH)
 
 ```{r fig.height=6,fig.width=6}
 mpdhplot    <-mpdh_pred[,1:3]%>%data.frame()%>%
@@ -726,35 +961,10 @@ ggarrange(r1.1,r2.2,r4.4,ncol=3,common.legend = T)
 
 
 
-# Análisis caso base
-
-```{r}
-data1        <- lisread(here("codigo_admb_modificado_S","MAE323m.dat")) 
-names(data1) <- str_trim(names(data1), side="right")
-dat1         <- data1
-rep1         <- reptoRlist(here("codigo_admb_modificado_S","MAE323m.rep"))
-std1         <- read.table(here("codigo_admb_modificado_S","MAE323m.std"),header=T,sep="",na="NA",fill=T) 
-```
-
-```{r}
-Datos<-dat1$Ind %>% data.frame()
-names(Datos)<-c("year","reclas","cv_R","pelaces","cv_P","mpdh","cv_M","desembarque","cv_D")
-kbl(Datos)
-```
+<!-- # Análisis caso base -->
 
 
-
-```{r fig.height=3,fig.width=4}
-Datos1<-Datos[,c(1,2,4,6)] %>% melt(id="year")
-Datos1[Datos1==0]<-NA
-
-ggplot(Datos1,aes(x=year,y=value/1000000))+xlim(2000,2024)+
-  geom_line(aes(color=variable))+geom_point(aes(color=variable))+
-  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
-  theme_bw()
-```
-
-```{r}
+```{r eval=F}
 
 data3<-cbind(Datos[,c(1,2,4,6)],mpdh_dens*200)%>% melt(id="year")
 data3[data3==0]<-NA
@@ -766,120 +976,3 @@ ggplot(data3,aes(x=year,y=log(value)))+xlim(2000,2024)+geom_point(aes(color=vari
   
 
 ```
-
-```{r}
-
-year<-rep1$years
-mph_obs<-rep1$mphobs
-mph_pred<-rep1$mphpred
-BD_modelo<-rep1$SSB
-
-Data1<-data.frame(year,mph_obs,mph_pred,BD_modelo)
-#Data1
-
-std1 %>% filter(name=="log_qrecl") 
-std1 %>% filter(name=="log_qpela")
-std1 %>% filter(name=="log_qmph")
-
-```
-
-```{r fig.height=3,fig.width=4}
-Data2<-Data1%>% melt(id="year")
-Data2[Data2==0]<-NA
-ggplot(Data2,aes(x=year,y=value/1000000))+xlim(2000,2024)+ylim(NA,1.5)+
-  geom_line(aes(color=variable),alpha=.3)+geom_point(aes(color=variable))+
-  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
-  theme_bw()
-```
-
-
-```{r}
-names_ind<- c('Crucero_verano', 
-                'Crucero_otoño',
-                'Crucero_huevos', 
-                'Desembarques') 
-  #observados 
-  years<-rep1$years
-  reclasobs     <-rep1$reclasobs %>% na_if(0)
-  pelacesobs    <-rep1$pelacesobs %>% na_if(0)
-  mphobs        <-rep1$mphobs %>% na_if(0)
-  desembarqueobs<-rep1$desembarqueobs %>% na_if(0)
-          #data.frame observados 
-          indobs  <- data.frame(
-                     reclasobs,
-                     pelacesobs,
-                     mphobs,
-                     desembarqueobs) %>% 
-                     #na_if(0) %>% 
-                     magrittr::set_colnames(names_ind) %>%
-                     mutate(Asesoria="Hito 2",type='observado',yrs= years) %>% 
-                     melt(id.var=c('yrs','type', 'Asesoria'))  
-          
-  #predichos
-  reclaspred     <-rep1$reclaspred 
-  pelacespred    <-rep1$pelacespred 
-  mphpred        <-rep1$mphpred
-  desembarquepred<-rep1$desembarquepred
-          #data.frame predichos
-          indpred  <- data.frame(
-                      reclaspred,
-                      pelacespred,
-                      mphpred,
-                      desembarquepred) %>% 
-                      #na_if(0) %>% 
-                      magrittr::set_colnames(names_ind) %>%
-                      mutate(Asesoria="Hito 2",type='predicho',yrs= years) %>% 
-                      melt(id.var=c('yrs','type', 'Asesoria')) 
-```
-
-
-```{r}
-
-ggplot(data=indobs,aes(x=yrs,y=value,color=variable))+
-       geom_point()+
-       geom_line(data=indpred,aes(x=yrs,y=value,color=variable))+
-  xlim(2000,2024)+
-  ylab("Biomasas (millones de t)")+xlab("Años")+ggtitle("Sardina común")+
-  theme_bw()
-
-```
-
-
-
-```{r fig.height=6,fig.width=6}
-
-  DataRes <- indobs %>%
-              mutate(
-              Res=(log(indobs$value)-log(indpred$value)),
-              Pred=log(indpred$value))
-
-r1.1  <-ggplot(DataRes, aes(yrs,Res)) + 
-  geom_smooth()+
-  geom_bar(stat='identity', position='dodge') +
-  geom_hline(yintercept = 0) + 
-  facet_wrap(. ~ variable, ncol = 1) + 
-  labs(x= 'Año', y = 'Residuales (escala log)') +
-  theme_bw(base_size=9.5)
-
-r2.2  <-ggplot(DataRes, aes(Pred,Res)) + 
-  geom_smooth()+
-  geom_point(size = 1.5) + 
-  geom_hline(yintercept = 0) + 
-  facet_wrap(. ~ variable, ncol = 1) +
-  labs(x= 'Predicho (log)', y = 'Residuales') + 
-  theme_bw(base_size=9.5)
-
-r4.4 <- ggplot(DataRes, aes(sample = Res)) + 
-  stat_qq() + 
-  stat_qq_line() + 
-  facet_wrap(. ~ variable, ncol = 1) +
-  labs(x= 'Sample Quantiles', y ='Theoretical') + 
-  theme_bw(base_size=9.5)
-
-r1.1+r2.2+r4.4
-
-```
-
-
-
-
