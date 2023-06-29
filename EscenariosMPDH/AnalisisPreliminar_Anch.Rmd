@@ -1066,6 +1066,7 @@ p4<-fig12.1(Rdata_perfils9,"cv_reclas=0.25, cv_pelaces=0.15, cv_mph=0.3",c(30000
 ```
 
 
+
 ```{r fig.cap="\\label{Fig34}Análisis retrospectivo relativo",fig.height=5,fig.width=9}
 # ANALISIS RETROSPECTIVO
 source(here(dir.fun,"Fn_Figuras.R"))
