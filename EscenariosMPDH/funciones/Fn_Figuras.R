@@ -629,7 +629,7 @@ fig12.1 <-function(Rdata_perfil,asesoria,xlimperfil){
     xlab(expression("R"[0])) + 
     ylab("L-min(L)") + 
     ggtitle(asesoria)+
-    theme_bw(base_size=10) +
+    theme_bw(base_size=9) +
     theme(plot.title = element_text(hjust = 0.5),legend.position="right")  
   #fig<-ggplot(data = datares, aes(x = reorder(names_res,residuos), y = residuos)) +
   #      ylim(-2, 3)+
@@ -1428,3 +1428,61 @@ fig24_HITO2y3<-function(escRecl,col_escRecl,ylim1,xlim1,
   
 }
 
+
+fig11.2 <-function(Rdata_retroA,ESC){
+  
+  #archivo.Rdata<-Rdata_H2
+  
+  # load(archivo.Rdata)
+  # RTa<-rt
+  # BDa<-bd
+  # FTa<-ft
+  
+  load(Rdata_retroA)
+  
+  
+  #Retrospectivo tradicional
+  library(ggpubr)
+  BD <- ggplot(BD_retro) + ylim(0,0.9)+
+    #geom_ribbon(data=BDa,aes(ymin=lower, ymax=upper, x=x, fill = "IC"), alpha = 0.2)+
+    geom_line(aes(y=y1/1000000, x=x, colour = year_retros[nretros]), size=0.5)+
+    geom_line(aes(y=y2/1000000, x=x, colour = year_retros[nretros-1]), size=0.5)+
+    geom_line(aes(y=y3/1000000, x=x, colour = year_retros[nretros-2]), size=0.5)+
+    geom_line(aes(y=y4/1000000, x=x, colour = year_retros[nretros-3]), size=0.5)+
+    geom_line(aes(y=y5/1000000, x=x, colour = year_retros[nretros-4]), size=0.5)+
+    annotate("text", x=2005, y=0.35,label=paste("Rho =",round(ave.mohn.ssb,2))) +
+    labs(x = '', y = '',colour='Asesorías')  +
+    scale_x_continuous(breaks = seq(from = 1990, to = 2060, by = 5)) +
+    scale_colour_manual("",values=c("orange","green","blue","red","black"))+
+    scale_fill_manual("",values=c("grey30"))+
+    theme_bw(base_size=9) +
+    ggtitle(ESC)+
+    theme(plot.title = element_text(size=9,hjust = 0.5),legend.position="none")
+  BD
+  
+  #Retrospectivo relativo
+
+  
+  BDrel <- ggplot(BD_retroRel) + lims(y=c(-.5,.5)) +
+    geom_line(aes(y=y1, x=x, colour = year_retros[nretros]), size=0.5)+
+    geom_line(aes(y=y2, x=x, colour = year_retros[nretros-1]), size=0.5)+
+    geom_line(aes(y=y3, x=x, colour = year_retros[nretros-2]), size=0.5)+
+    geom_line(aes(y=y4, x=x, colour = year_retros[nretros-3]), size=0.5)+
+    geom_line(aes(y=y5, x=x, colour = year_retros[nretros-4]), size=0.5)+
+    annotate("text", x=2005, y=0.35,label=paste("Rho =",round(ave.mohn.ssb,2))) +
+    labs(x = '', y = '',colour='Asesorías')  +
+    scale_x_continuous(breaks = seq(from = 1990, to = 2060, by = 5)) +
+    scale_colour_manual("",values=c("orange","green","blue","red","black"))+
+    scale_fill_manual("",values=c("grey30"))+
+    theme_bw(base_size=9) +
+    ggtitle(ESC)+
+    theme(plot.title = element_text(size=9,hjust = 0.5),legend.position="none")
+  
+
+  
+  # Rt/BD/Ft |Rtrel/BDrel/Ftrel
+  
+  #ggarrange(BD,BDrel, ncol=2, nrow=1, common.legend= TRUE,legend="none")
+  
+  
+}

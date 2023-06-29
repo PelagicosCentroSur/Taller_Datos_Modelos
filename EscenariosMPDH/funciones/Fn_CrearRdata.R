@@ -473,3 +473,95 @@ save(list=ls(all=T),
 
 }
 # 
+
+Rdata_retroanalitico2<-function(Hito,dirRDretroA,dir.Rdata){
+  
+
+  
+  listretros2<-list.files(dirRDretroA,pattern=".rep")  
+  retros2  <- seq(2,length(listretros2))
+  nretros2 <- length(retros2)
+  #year_retros2<-as.factor(years[(nyears-(nretros2-1)):nyears])
+  
+  retroR      <- matrix(0,nrow=nyears,ncol=nretros2+1)
+  retroBD     <- matrix(0,nrow=nyears,ncol=nretros2+1)
+  retroF      <- matrix(0,nrow=nyears,ncol=nretros2+1)
+  
+  #setwd(dir)
+  for(i in 1:nretros2){
+    x<-retros2[i]
+    rep2<- reptoRlist(paste(dirRDretroA,listretros2[x],sep="/"))
+    retroR[,i+1] <- c(rep2$Reclutas,rep(NA,i-1))
+    retroBD[,i+1] <- c(rep2$SSB,rep(NA,i-1))
+    retroF[,i+1]  <- c(rep2$Ftot,rep(NA,i-1)) 
+  }
+  
+  # retrospectivo relativo (cálculo)
+  mohn.r       <- rep(NA, nretros2)
+  rel.diff.r   <- matrix(NA, nrow=nyears, ncol=(nretros2))
+  mohn.ssb     <- rep(NA, nretros2)
+  rel.diff.ssb <- matrix(NA, nrow=nyears, ncol=(nretros2))
+  mohn.f       <- rep(NA, nretros2)
+  rel.diff.f   <- matrix(NA, nrow=nyears, ncol=(nretros2))
+  
+  for(j in 1:nretros2){
+    rel.diff.r[,j]   <- (retroR[,(j+1)]-retroR[,2])/retroR[,2]
+    mohn.r[j]        <- rel.diff.r[(nyears-j),j]
+    rel.diff.ssb[,j] <- (retroBD[,(j+1)]-retroBD[,2])/retroBD[,2]
+    mohn.ssb[j]      <- rel.diff.ssb[(nyears-j),j]
+    rel.diff.f[,j]   <- (retroF[,(j+1)]-retroF[,2])/retroF[,2]
+    mohn.f[j]        <- rel.diff.f[(nyears-j),j]}
+  
+  ave.mohn.r    <- mean(mohn.r)
+  ave.mohn.ssb  <- mean(mohn.ssb)
+  ave.mohn.f    <- mean(mohn.f)
+  
+  # Arreglo datos
+  
+  #Para retrospectivo tradicional
+  Rt_retro<- data.frame(x=years,
+                        y1=retroR[,2],
+                        y2=retroR[,3],
+                        y3=retroR[,4],
+                        y4=retroR[,5],
+                        y5=retroR[,6])
+  BD_retro<- data.frame(x=years,
+                        y1=retroBD[,2],
+                        y2=retroBD[,3],
+                        y3=retroBD[,4],
+                        y4=retroBD[,5],
+                        y5=retroBD[,6])
+  Ft_retro<- data.frame(x=years,
+                        y1=retroF[,2],
+                        y2=retroF[,3],
+                        y3=retroF[,4],
+                        y4=retroF[,5],
+                        y5=retroF[,6])
+  
+  #Para restrospectivo relativo
+  Rt_retroRel<- data.frame(x=years,
+                           y1=rel.diff.r[,1],
+                           y2=rel.diff.r[,2],
+                           y3=rel.diff.r[,3],
+                           y4=rel.diff.r[,4],
+                           y5=rel.diff.r[,5])
+  BD_retroRel<- data.frame(x=years,
+                           y1=rel.diff.ssb[,1],
+                           y2=rel.diff.ssb[,2],
+                           y3=rel.diff.ssb[,3],
+                           y4=rel.diff.ssb[,4],
+                           y5=rel.diff.ssb[,5])
+  Ft_retroRel<- data.frame(x=years,
+                           y1=rel.diff.f[,1],
+                           y2=rel.diff.f[,2],
+                           y3=rel.diff.f[,3],
+                           y4=rel.diff.f[,4],
+                           y5=rel.diff.f[,5])
+  
+  year_retros <- as.factor(years[(nyears-4):nyears])
+  nretros <- length(year_retros)
+  
+  save(list=ls(all=T),
+       file=paste(dir.Rdata,'/RetroA_',Hito,'.RData',sep=""))
+  
+}
