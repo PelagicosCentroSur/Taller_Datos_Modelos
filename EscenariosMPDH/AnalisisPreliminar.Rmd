@@ -24,7 +24,6 @@ dir.0   <- here()
 dir.s0   <- here("codigo_admb_modificado_S") 
 dir.fun <- here("funciones") 
 dir.Rdata<-here("Rdata")
-
 ```
 
 
@@ -348,6 +347,36 @@ colnames(Rt)<-escenarios
 colnames(Ft)<-escenarios
 
 ```
+
+
+
+```{r eval=F, include=F}
+# `Fn_Retrospectivo.R`
+
+source(here(dir.fun,"Fn_Retrospectivo.R"))
+for(i in 1:nesc){
+Retrospectivo(paste("MAE323m",i,sep=""),
+              dir.0,
+              dir.esc,
+              paste("/RetroS",i,sep=""),
+              system="mac") 
+}
+```
+
+
+
+```{r eval=F}
+
+for(i in 1:nesc){
+## `Rdata_retroanalitico` genera Rdata para Retrospectivo analítico
+dirRDretroA<-here(dir.0,paste("RetroS",i,sep=""))
+# list.files(dirRDretroA,pattern=".rep")
+RDretroA<-Rdata_retroanalitico2(paste("Hito 2a",i,sep=""),dirRDretroA,dir.Rdata) #crea Rdata
+Rdata_retroA<-here(dir.Rdata,paste("RetroS",i,sep=""))  # path Rdata
+}
+```
+
+
 \newpage
 
 # Revisión de los datos del Método de Producción Diaria de Huevos (MPDH)
@@ -509,13 +538,13 @@ yearBio<-paste(yearF,substr((yearF+1),3,4),sep="-")
 
 
 
-dtMPDHvar <- data.frame(yearF,fechainicio,fechatermino,diascrucero,CVmpdh_var,yearBio,fraccionyear)
+dtMPDHvar <- data.frame(yearF,fechainicio,fechatermino,diascrucero,yearBio,fraccionyear)
 
 
 caption1<-"\\label{tab3}Fechas de inicio, término y duración en días de los cruceros de huevos. Fracción del año biológico considerando la fecha de inicio del crucero"
 
 opts<-options(knitr.kable.NA="-")
-dtMPDHvar%>% kbl(booktabs = T,format = "latex",position="h!", align='c',escape=F,caption=caption1,col.names=linebreak(c("Año\nCrucero","Fecha de\ninicio","Fecha de\ntérmino","Duración del\ncrucero","CV\ncrucero","Año\nbiológico","Fracción del\naño biológico (dt)"),align='c'))%>%  
+dtMPDHvar%>% kbl(booktabs = T,format = "latex",position="h!", align='c',escape=F,caption=caption1,col.names=linebreak(c("Año\nCrucero","Fecha de\ninicio","Fecha de\ntérmino","Duración del\ncrucero","Año\nbiológico","Fracción del\naño biológico (dt)"),align='c'))%>%  
 kable_styling(latex_options = c("striped", "hover","condensed"),
 full_width = FALSE,font_size=9)
 
@@ -543,7 +572,7 @@ ggarrange(p2,ncol=1,common.legend = T)
 ```
 
 
-
+\newpage
 # Escenarios de sensibilidad del índice de biomasa desovante estimada por el MPDH
 
 
@@ -581,7 +610,7 @@ column_spec(1,italic=T) %>%
 
 \newpage
 
-# Cambios en dt  y bloques de capturabilidad biomasa desovante del índice de biomasa desovante (MPDH)
+## Cambios en dt  y bloques de capturabilidad biomasa desovante del índice de biomasa desovante (MPDH)
 
 ```{r fig.height=6,fig.width=6}
 mpdhplot    <-mpdh_pred[,1:3]%>%data.frame()%>%
@@ -668,35 +697,52 @@ r4.4 <- ggplot(RESIDUOS, aes(sample = Res,color=variable)) +
 #-------------------------------------------------------------
 ```
 
-```{r fig.height=6,fig.width=6}
-ggarrange(p1.s1,r1.1,ncol=2,common.legend = T)+
-  theme(plot.title=element_text(size=10),legend.text=element_text(size=6))
+```{r fig.height=6,fig.width=9}
+ggarrange(p1.s1,r1.1,ncol=2,common.legend = T)
+```
+
+
+```{r}
+escRMSE<-c("caso base","dt_mph variable","dt_mph variable y 3 bloques_qmph","cv_mph=0.3","cv_mph=0.15","cv_mph=0.5","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3")
+dataRMSE<-data.frame(Escenarios=escRMSE,C.Huevos=RMSE_mph,C.Verano=RMSE_reclas,C.Otono=RMSE_pelaces)
+
+
+caption1<-"\\label{tab5}Error cuadrático medio para medir la bondad de ajuste de cada escenario."
+
+dataRMSE[1:3,] %>%  
+  kbl(booktabs = T,format = "latex",position="h!", align='l',
+      caption=caption1) %>%  
+  kable_styling(latex_options = c("striped", "hover","condensed"),
+                full_width = FALSE,font_size=10) %>% 
+column_spec(1,italic=T) %>% add_header_above(c(' '=1,
+                        "RMSE"=3))
+
 ```
 
 \newpage
-```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=6,fig.width=7}
+```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=3.5,fig.width=9}
 
 Rdata_perfils1<-here(dir.Rdata,"PerfilVero_Hito 2s1.RData")
 Rdata_perfils2<-here(dir.Rdata,"PerfilVero_Hito 2s2.RData")
 Rdata_perfils3<-here(dir.Rdata,"PerfilVero_Hito 2s3.RData")
 
-p1<-fig12.1(Rdata_perfils1,"S1: Caso base",c(30000, 210000))
-p2<-fig12.1(Rdata_perfils2,"S2: dt_mph variable",c(30000, 210000))
-p3<-fig12.1(Rdata_perfils3,"S3: dt_mph variable y 3 bloques_qmph",c(30000, 210000))
+p1<-fig12.1(Rdata_perfils1,"Caso base",c(30000, 210000))
+p2<-fig12.1(Rdata_perfils2,"dt_mph variable",c(30000, 210000))
+p3<-fig12.1(Rdata_perfils3,"dt_mph variable y 3 bloques_qmph",c(30000, 210000))
 
-  ggarrange(p1,p2,p3, ncol=2, nrow=2, common.legend= TRUE, legend= "right")
+  ggarrange(p1,p2,p3, ncol=3, nrow=1, common.legend= TRUE, legend= "bottom")
 
 ```
 
-\newpage
-```{r fig.height=6,fig.width=8, fig.cap="\\label{Fig35} Variables poblacionales de sardina común"}
-BDplot<-BD[,1:3]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
-Rtplot<-Rt[,1:3]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
+
+```{r fig.height=3.5,fig.width=9, fig.cap="\\label{Fig35} Variables poblacionales de sardina común"}
+BDplot<-BD[,1:3]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
+Rtplot<-Rt[,1:3]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
 Ftplot<-Ft[,1:3]%>%data.frame()%>%mutate(years=years,index="Mortalidad por pesca") %>% melt(id=c("years","index"))
 #----------------------------------------------------------------------
 Variables1<-rbind(BDplot,Rtplot,Ftplot)
 #----------------------------------------------------------------------
-labelsplot<-c("caso base","dt_mph variable","dt_mph variable y 3 bloques_qmph")
+labelsplot<-c("Caso base","dt_mph variable","dt_mph variable y 3 bloques_qmph")
 colorplot<-c("black","red","green")
 linetypeplot<-c("solid",rep("dashed",2))
 tittleleg<-"Escenarios"
@@ -704,15 +750,17 @@ tittleleg<-"Escenarios"
 p1<-ggplot(Variables1,aes(x=years,y=value,color=variable))+geom_line(aes(linetype=variable))+
   scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
   scale_linetype_manual(name=tittleleg,labels=labelsplot,values=linetypeplot)+
-  facet_wrap(. ~ index, ncol = 1,scales = "free_y") + 
-  ylab("")+xlab("")+theme_bw()
+  facet_wrap(. ~ index, ncol = 3,scales = "free_y") + 
+  ylab("")+xlab("")+theme_bw(base_size=9.5)+theme(plot.title = element_text(hjust = 0.5),legend.position="top")
 p1
 #----------------------------------------------------------------------
 ```
 
 
+
 \newpage
-# S2 cambios en CV mpdh 
+## Cambios en CV mpdh 
+
 
 ```{r fig.height=6,fig.width=6}
 mpdhplot<-mpdh_pred[,c(1,4:6)]%>%data.frame()%>%
@@ -729,7 +777,7 @@ shapeplot<-c(rep(19,4),21)
 linetypeplot<-c(rep("solid",4),"dashed")
 tittleleg<-"Escenarios"
 #----------------------------------------------------------------------
-p1<-ggplot(Ajustes2,aes(x=years,y=value/1000000,color=variable))+
+ps2<-ggplot(Ajustes2,aes(x=years,y=value/1000000,color=variable))+
   geom_line(aes(linetype=variable))+
   geom_point(aes(shape=variable),size=2.5)+xlim(2000,2024)+
   scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
@@ -737,13 +785,11 @@ p1<-ggplot(Ajustes2,aes(x=years,y=value/1000000,color=variable))+
   scale_linetype_manual(name=tittleleg,labels=labelsplot,values=linetypeplot)+
   facet_wrap(. ~ index, ncol = 1,scales = "free_y") + 
   ylab("mpdh")+xlab("")+theme_bw()
-p1
+#ps2
 #----------------------------------------------------------------------
 #ggarrange(p1,p2,p3,ncol=1,common.legend = T)
 #----------------------------------------------------------------------
 ```
-
-\newpage
 
 
 ```{r fig.height=6,fig.width=6}
@@ -763,12 +809,19 @@ ResPELA<-merge(pela_pred_res,pela_res)%>% mutate(index="3. Crucero de otoño")
 #BASEDATOS
 RESIDUOS<-rbind(ResMPH,ResRECL,ResPELA)
 
+#----------------------------------------------------------------------
+labelsplot<-c("caso base","cv_mph=0.3","cv_mph=0.15","cv_mph=0.5")
+colorplot<-c("black","red","green","blue")
+tittleleg<-"Escenarios"
+#----------------------------------------------------------------------
 #-------------------------------------------------------------
 #PLOT
 r1.1  <-ggplot(RESIDUOS, aes(yrs,Res,fill=variable)) + xlim(2000,2024)+
   geom_smooth(aes(fill=variable,color=variable),alpha=.1)+
   geom_bar(stat='identity', position='dodge') +
   geom_hline(yintercept = 0) + 
+  scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
+  scale_fill_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
   facet_wrap(. ~ index, ncol = 1,scales = "free_x") + 
   labs(x= 'Año', y = 'Residuales (escala log)') +
   theme_bw(base_size=9.5)
@@ -788,33 +841,54 @@ r4.4 <- ggplot(RESIDUOS, aes(sample = Res,color=variable)) +
   labs(x= 'Sample Quantiles', y ='Theoretical') +
   theme_bw(base_size=9.5)
 #-------------------------------------------------------------
-ggarrange(r1.1,r2.2,r4.4,ncol=3,common.legend = T)
+#ggarrange(r1.1,r2.2,r4.4,ncol=3,common.legend = T)
 #-------------------------------------------------------------
+```
+
+
+```{r fig.height=6,fig.width=9}
+ggarrange(ps2,r1.1,ncol=2,common.legend = T)
+```
+
+```{r}
+escRMSE<-c("caso base","dt_mph variable","dt_mph variable y 3 bloques_qmph","cv_mph=0.3","cv_mph=0.15","cv_mph=0.5","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3")
+dataRMSE<-data.frame(Escenarios=escRMSE,C.Huevos=RMSE_mph,C.Verano=RMSE_reclas,C.Otono=RMSE_pelaces)
+
+
+caption1<-"\\label{tab6}Error cuadrático medio para medir la bondad de ajuste de cada escenario."
+
+dataRMSE[c(1,4:6),] %>%  
+  kbl(booktabs = T,format = "latex",position="h!", align='l',
+      caption=caption1) %>%  
+  kable_styling(latex_options = c("striped", "hover","condensed"),
+                full_width = FALSE,font_size=10) %>% 
+column_spec(1,italic=T) %>% add_header_above(c(' '=2,
+                        "RMSE"=3))
+
 ```
 
 \newpage
 
-```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=7,fig.width=7}
+```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=5,fig.width=9}
 
 Rdata_perfils1<-here(dir.Rdata,"PerfilVero_Hito 2s1.RData")
 Rdata_perfils4<-here(dir.Rdata,"PerfilVero_Hito 2s4.RData")
 Rdata_perfils5<-here(dir.Rdata,"PerfilVero_Hito 2s5.RData")
 Rdata_perfils6<-here(dir.Rdata,"PerfilVero_Hito 2s6.RData")
 
-p1<-fig12.1(Rdata_perfils1,"Hito 2: S1",c(30000, 210000))
-p2<-fig12.1(Rdata_perfils4,"Hito 2: S4",c(30000, 210000))
-p3<-fig12.1(Rdata_perfils5,"Hito 2: S5",c(30000, 210000))
-p4<-fig12.1(Rdata_perfils6,"Hito 2: S6",c(30000, 210000))
+p1<-fig12.1(Rdata_perfils1,"Caso base",c(30000, 210000))
+p2<-fig12.1(Rdata_perfils4,"cv_mph=0.3",c(30000, 210000))
+p3<-fig12.1(Rdata_perfils5,"cv_mph=0.15",c(30000, 210000))
+p4<-fig12.1(Rdata_perfils6,"cv_mph=0.5",c(30000, 210000))
 
   ggarrange(p1,p2,p3,p4, ncol=2, nrow=2, common.legend= TRUE, legend= "right")
 
 ```
 
-\newpage
 
-```{r fig.height=6,fig.width=8}
-BDplot<-BD[,c(1,4:6)]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
-Rtplot<-Rt[,c(1,4:6)]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
+```{r fig.height=3.5,fig.width=9,fig.cap="\\label{Fig35} Variables poblacionales de sardina común"}
+BDplot<-BD[,c(1,4:6)]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
+Rtplot<-Rt[,c(1,4:6)]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
 Ftplot<-Ft[,c(1,4:6)]%>%data.frame()%>%mutate(years=years,index="Mortalidad por pesca") %>% melt(id=c("years","index"))
 #----------------------------------------------------------------------
 Variables2<-rbind(BDplot,Rtplot,Ftplot)
@@ -827,56 +901,15 @@ tittleleg<-"Escenarios"
 p1<-ggplot(Variables2,aes(x=years,y=value,color=variable))+geom_line(aes(linetype=variable))+
   scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
   scale_linetype_manual(name=tittleleg,labels=labelsplot,values=linetypeplot)+
-  facet_wrap(. ~ index, ncol = 1,scales = "free_y") + 
-  ylab("")+xlab("")+theme_bw()
+  facet_wrap(. ~ index, ncol = 3,scales = "free_y") + 
+  ylab("")+xlab("")+theme_bw(base_size=9.5)+theme(plot.title = element_text(hjust = 0.5),legend.position="top")
 p1
 ```
 
 
 \newpage
 
-# S3 cambios en CV reclas y pelaces
-
-```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=7,fig.width=7}
-
-Rdata_perfils1<-here(dir.Rdata,"PerfilVero_Hito 2s1.RData")
-Rdata_perfils7<-here(dir.Rdata,"PerfilVero_Hito 2s7.RData")
-Rdata_perfils8<-here(dir.Rdata,"PerfilVero_Hito 2s8.RData")
-Rdata_perfils9<-here(dir.Rdata,"PerfilVero_Hito 2s9.RData")
-
-p1<-fig12.1(Rdata_perfils1,"Hito 2: S1",c(30000, 210000))
-p2<-fig12.1(Rdata_perfils7,"Hito 2: S7",c(30000, 210000))
-p3<-fig12.1(Rdata_perfils8,"Hito 2: S8",c(30000, 210000))
-p4<-fig12.1(Rdata_perfils9,"Hito 2: S9",c(30000, 210000))
-
-  ggarrange(p1,p2,p3,p4, ncol=2, nrow=2, common.legend= TRUE, legend= "right")
-
-```
-
-
-\newpage
-
-```{r fig.height=6,fig.width=8}
-BDplot<-BD[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
-Rtplot<-Rt[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
-Ftplot<-Ft[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Mortalidad por pesca") %>% melt(id=c("years","index"))
-#----------------------------------------------------------------------
-Variables3<-rbind(BDplot,Rtplot,Ftplot)
-#----------------------------------------------------------------------
-labelsplot<-c("caso base","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3 ")
-colorplot<-c("black","red","green","blue")
-linetypeplot<-c("solid",rep("dashed",3))
-tittleleg<-"Escenarios"
-#----------------------------------------------------------------------
-p1<-ggplot(Variables3,aes(x=years,y=value,color=variable))+geom_line(aes(linetype=variable))+
-  scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
-  scale_linetype_manual(name=tittleleg,labels=labelsplot,values=linetypeplot)+
-  facet_wrap(. ~ index, ncol = 1,scales = "free_y") + 
-  ylab("")+xlab("")+theme_bw()
-p1
-```
-
-\newpage
+## Cambios en CV reclas y pelaces
 
 ```{r fig.height=6,fig.width=6}
 mpdhplot<-mpdh_pred[,c(1,7:9)]%>%data.frame()%>%
@@ -893,7 +926,7 @@ shapeplot<-c(rep(19,4),21)
 linetypeplot<-c(rep("solid",4),"dashed")
 tittleleg<-"Escenarios"
 #----------------------------------------------------------------------
-p1<-ggplot(Ajustes3,aes(x=years,y=value/1000000,color=variable))+
+ps3<-ggplot(Ajustes3,aes(x=years,y=value/1000000,color=variable))+
   geom_line(aes(linetype=variable))+
   geom_point(aes(shape=variable),size=2.5)+xlim(2000,2024)+
   scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
@@ -902,13 +935,13 @@ p1<-ggplot(Ajustes3,aes(x=years,y=value/1000000,color=variable))+
   facet_wrap(. ~ index, ncol = 1,scales = "free_y") + 
   ylab("Biomasa (millones de t)")+xlab("")+theme_bw()
 
-p1
+#ps3
 #----------------------------------------------------------------------
 #ggarrange(p1,p2,p3,ncol=1,common.legend = T)
 #----------------------------------------------------------------------
 ```
 
-\newpage
+
 
 ```{r fig.height=6,fig.width=6}
 
@@ -926,13 +959,19 @@ pela_res<-respela[,c(1,7:9)]%>%data.frame() %>% mutate(yrs=years) %>% melt(id="y
 ResPELA<-merge(pela_pred_res,pela_res)%>% mutate(index="3. Crucero de otoño")
 #BASEDATOS
 RESIDUOS<-rbind(ResMPH,ResRECL,ResPELA)
-
+#----------------------------------------------------------------------
+labelsplot<-c("caso base","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3")
+colorplot<-c("black","red","green","blue")
+tittleleg<-"Escenarios"
+#----------------------------------------------------------------------
 #-------------------------------------------------------------
 #PLOT
 r1.1  <-ggplot(RESIDUOS, aes(yrs,Res,fill=variable)) + xlim(2000,2024)+
   geom_smooth(aes(fill=variable,color=variable),alpha=.1)+
   geom_bar(stat='identity', position='dodge') +
   geom_hline(yintercept = 0) + 
+  scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
+  scale_fill_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
   facet_wrap(. ~ index, ncol = 1,scales = "free_x") + 
   labs(x= 'Año', y = 'Residuales (escala log)') +
   theme_bw(base_size=9.5)
@@ -952,10 +991,70 @@ r4.4 <- ggplot(RESIDUOS, aes(sample = Res,color=variable)) +
   labs(x= 'Sample Quantiles', y ='Theoretical') +
   theme_bw(base_size=9.5)
 #-------------------------------------------------------------
-ggarrange(r1.1,r2.2,r4.4,ncol=3,common.legend = T)
+#ggarrange(r1.1,r2.2,r4.4,ncol=3,common.legend = T)
 #-------------------------------------------------------------
 ```
 
+
+```{r fig.height=6,fig.width=9}
+ggarrange(ps3,r1.1,ncol=2,common.legend = T)
+```
+
+```{r}
+escRMSE<-c("caso base","dt_mph variable","dt_mph variable y 3 bloques_qmph","cv_mph=0.3","cv_mph=0.15","cv_mph=0.5","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3")
+dataRMSE<-data.frame(Escenarios=escRMSE,C.Huevos=RMSE_mph,C.Verano=RMSE_reclas,C.Otono=RMSE_pelaces)
+
+
+caption1<-"\\label{tab6}Error cuadrático medio para medir la bondad de ajuste de cada escenario."
+
+dataRMSE[c(1,7:9),] %>%  
+  kbl(booktabs = T,format = "latex",position="h!", align='l',
+      caption=caption1) %>%  
+  kable_styling(latex_options = c("striped", "hover","condensed"),
+                full_width = FALSE,font_size=10) %>% 
+column_spec(1,italic=T) %>% add_header_above(c(' '=2,
+                        "RMSE"=3))
+
+```
+
+\newpage
+
+```{r fig.cap="\\label{Fig34}Perfiles de verosimilitud de las fuentes de datos para el parámetro de reclutamiento medio ($R_0$), donde la línea horizontal representa el nivel crítico para el test $\\chi^2$.",fig.height=5,fig.width=9}
+
+Rdata_perfils1<-here(dir.Rdata,"PerfilVero_Hito 2s1.RData")
+Rdata_perfils7<-here(dir.Rdata,"PerfilVero_Hito 2s7.RData")
+Rdata_perfils8<-here(dir.Rdata,"PerfilVero_Hito 2s8.RData")
+Rdata_perfils9<-here(dir.Rdata,"PerfilVero_Hito 2s9.RData")
+
+p1<-fig12.1(Rdata_perfils1,"Caso base",c(30000, 210000))
+p2<-fig12.1(Rdata_perfils7,"cv_reclas=100",c(30000, 210000))
+p3<-fig12.1(Rdata_perfils8,"cv_pelaces=100",c(30000, 210000))
+p4<-fig12.1(Rdata_perfils9,"cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3",c(30000, 210000))
+
+  ggarrange(p1,p2,p3,p4, ncol=2, nrow=2, common.legend= TRUE, legend= "right")
+
+```
+
+
+```{r fig.height=3.5,fig.width=9, fig.cap="\\label{Fig35} Variables poblacionales de sardina común"}
+BDplot<-BD[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Biomasa desovante") %>% melt(id=c("years","index"))
+Rtplot<-Rt[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Reclutamientos") %>% melt(id=c("years","index"))
+Ftplot<-Ft[,c(1,7:9)]%>%data.frame()%>%mutate(years=years,index="Mortalidad por pesca") %>% melt(id=c("years","index"))
+#----------------------------------------------------------------------
+Variables3<-rbind(BDplot,Rtplot,Ftplot)
+#----------------------------------------------------------------------
+labelsplot<-c("caso base","cv_reclas=100","cv_pelaces=100","cv_reclas=0.15, cv_pelaces=0.25, cv_mph=0.3 ")
+colorplot<-c("black","red","green","blue")
+linetypeplot<-c("solid",rep("dashed",3))
+tittleleg<-"Escenarios"
+#----------------------------------------------------------------------
+p1<-ggplot(Variables3,aes(x=years,y=value,color=variable))+geom_line(aes(linetype=variable))+
+  scale_color_manual(name=tittleleg,labels=labelsplot,values=colorplot)+
+  scale_linetype_manual(name=tittleleg,labels=labelsplot,values=linetypeplot)+
+  facet_wrap(. ~ index, ncol = 3,scales = "free_y") + 
+  ylab("")+xlab("")+theme_bw(base_size=9.5)+theme(plot.title = element_text(hjust = 0.5),legend.position="top")
+p1
+```
 
 \newpage
 
